@@ -304,6 +304,7 @@
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(600, 500);
             this.Name = "Form1main";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Mail.ru Checker";
             this.ResumeLayout(false);
             this.PerformLayout();
