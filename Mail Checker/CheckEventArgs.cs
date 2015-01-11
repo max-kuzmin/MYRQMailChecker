@@ -8,6 +8,7 @@ namespace Mail_Checker
     enum CheckErrors {
         proxyError,
         mailError,
+        connectError,
         noError
     }
 
