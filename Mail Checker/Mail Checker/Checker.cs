@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using Chilkat;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Mail_Checker
 {
@@ -110,8 +111,8 @@ namespace Mail_Checker
                     mailElements[0].Contains("@photofile.ru") || mailElements[0].Contains("@fotoplenka.ru") ||
                     mailElements[0].Contains("@pochta.com")) serv = "imap.qip.ru";
 
-                //else if (mailElements[0].Contains("@mail.ru") || mailElements[0].Contains("@list.ru") 
-                //    || mailElements[0].Contains("@inbox.ru") || mailElements[0].Contains("@bk.ru")) mailType = 1;
+                else if (mailElements[0].Contains("@mail.ru") || mailElements[0].Contains("@list.ru") 
+                    || mailElements[0].Contains("@inbox.ru") || mailElements[0].Contains("@bk.ru")) mailType = 1;
 
                 else continue;
 
@@ -170,7 +171,51 @@ namespace Mail_Checker
 
         private void MailRuCheck(string[] mailElements, string[] proxyElements, out int messNum, out CheckErrors error)
         {
-            throw new NotImplementedException();
+
+            string[] loginDomain = mailElements[0].Split(new char[] { '@' });
+
+
+            messNum = 0;
+            error = CheckErrors.noError;
+            //bool success = true;
+
+            Http http = new Http();
+            http.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
+            http.FollowRedirects = true;
+            http.SendCookies = true;
+            http.SaveCookies = true;
+            http.CookieDir = "memory";
+            
+
+            HttpRequest req = new HttpRequest();
+            req.AddParam("Domain", loginDomain[1]);
+            req.AddParam("Login", loginDomain[0]);
+            req.AddParam("Password", mailElements[1]);
+            req.AddParam("saveauth", "0");
+            req.Path = "/cgi-bin/auth?from=splash";
+            req.HttpVerb = "POST";
+
+            HttpResponse resp = null;
+            resp = http.SynchronousRequest("auth.mail.ru", 443, true, req);
+            
+
+
+            HttpRequest req2 = new HttpRequest();
+            req2.HttpVerb = "GET";
+            req2.Path = "/search/";
+            req2.AddParam("q_from", query);
+            
+
+
+            HttpResponse resp2 = null;
+            resp2 = http.SynchronousRequest("e.mail.ru", 443, true, req2);
+
+            Regex.Matches(resp2.BodyStr, "\"From\":\".*mail.ru\"");
+            messNum += Regex.Matches(resp2.BodyStr, "\"From\":\".*" + query + "\"").Count;
+
+            http.CloseAllConnections();
+            http.Dispose();
+
         }
 
         private void ImapMailsCheck(string[] mailElements, string serv, string[] proxyElements, out int messNum, out CheckErrors error)
