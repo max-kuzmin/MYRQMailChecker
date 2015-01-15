@@ -57,8 +57,8 @@ namespace Mail_Checker
             {
 
                 string outNameTime = DateTime.Now.ToShortDateString() + " - "+ DateTime.Now.ToShortTimeString().Replace(':', '.');
-                goodMailsWithMessagesOut = File.CreateText(outNameTime + " - good.txt");
-                goodMailsOut = File.CreateText(outNameTime + " - " + textBox1query.Text + ".txt");
+                goodMailsOut = File.CreateText(outNameTime + " - good.txt");
+                goodMailsWithMessagesOut = File.CreateText(outNameTime + " - " + textBox1query.Text + ".txt");
 
                 checker = new Checker(mails, proxys, textBox1query.Text, Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
 
