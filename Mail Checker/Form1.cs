@@ -13,6 +13,7 @@ namespace Mail_Checker
         Checker checker;
         string[] mails, proxys;
         SetStateDelegate d;
+        StreamWriter goodMailsWithMessagesOut, goodMailsOut;
 
         public Form1main()
         {
@@ -55,6 +56,10 @@ namespace Mail_Checker
             if (button3start.Text == "Старт")
             {
 
+                string outNameTime = DateTime.Now.ToShortDateString() + " - "+ DateTime.Now.ToShortTimeString().Replace(':', '.');
+                goodMailsWithMessagesOut = File.CreateText(outNameTime + " - good.txt");
+                goodMailsOut = File.CreateText(outNameTime + " - " + textBox1query.Text + ".txt");
+
                 checker = new Checker(mails, proxys, textBox1query.Text, Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
 
                 checker.OneCheckDone += ChangeLabels;
@@ -94,10 +99,21 @@ namespace Mail_Checker
             label8valid.Text = e.state.valid.ToString();
             label9novalid.Text = e.state.novalid.ToString();
 
-            if (e.error == CheckErrors.noError && e.mail.messages>0)
+            if (e.error == CheckErrors.noError)
             {
-                string [] sub = { e.mail.login, e.mail.pass, e.mail.messages.ToString() };
-                listView1.Items.Add(new ListViewItem(sub));
+                goodMailsOut.WriteLine(e.mail.login + ":" + e.mail.pass);
+                goodMailsOut.Flush();
+
+
+                if (e.mail.messages > 0)
+                {
+                    string[] sub = { e.mail.login, e.mail.pass, e.mail.messages.ToString() };
+                    listView1.Items.Add(new ListViewItem(sub));
+
+                    goodMailsWithMessagesOut.WriteLine(e.mail.login + ":" + e.mail.pass);
+                    goodMailsWithMessagesOut.Flush();
+
+                }
             }
 
         }
