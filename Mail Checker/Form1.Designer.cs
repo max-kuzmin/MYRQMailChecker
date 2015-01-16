@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("dzfgdgds");
+            this.components = new System.ComponentModel.Container();
             this.button1mails = new System.Windows.Forms.Button();
             this.button2proxys = new System.Windows.Forms.Button();
             this.button3start = new System.Windows.Forms.Button();
@@ -54,6 +54,10 @@
             this.textBox2timeout = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.textBox1query = new System.Windows.Forms.TextBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem1login = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2pass = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1mails
@@ -97,21 +101,20 @@
             this.Messages});
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
-            this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
             this.listView1.Location = new System.Drawing.Point(228, 12);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(342, 429);
+            this.listView1.Size = new System.Drawing.Size(408, 429);
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            this.listView1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseClick);
             // 
             // Login
             // 
             this.Login.Text = "Логин";
-            this.Login.Width = 125;
+            this.Login.Width = 159;
             // 
             // Pass
             // 
@@ -120,7 +123,8 @@
             // 
             // Messages
             // 
-            this.Messages.Text = "Сообщ.";
+            this.Messages.Text = "Сообщения";
+            this.Messages.Width = 87;
             // 
             // label1
             // 
@@ -281,11 +285,33 @@
             this.textBox1query.TabIndex = 20;
             this.textBox1query.Text = "@steampowered.com";
             // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1login,
+            this.toolStripMenuItem2pass});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(218, 52);
+            // 
+            // toolStripMenuItem1login
+            // 
+            this.toolStripMenuItem1login.Name = "toolStripMenuItem1login";
+            this.toolStripMenuItem1login.Size = new System.Drawing.Size(217, 24);
+            this.toolStripMenuItem1login.Text = "Копировать логин";
+            this.toolStripMenuItem1login.Click += new System.EventHandler(this.toolStripMenuItem1login_Click);
+            // 
+            // toolStripMenuItem2pass
+            // 
+            this.toolStripMenuItem2pass.Name = "toolStripMenuItem2pass";
+            this.toolStripMenuItem2pass.Size = new System.Drawing.Size(217, 24);
+            this.toolStripMenuItem2pass.Text = "Копировать пароль";
+            this.toolStripMenuItem2pass.Click += new System.EventHandler(this.toolStripMenuItem2pass_Click);
+            // 
             // Form1main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 453);
+            this.ClientSize = new System.Drawing.Size(648, 453);
             this.Controls.Add(this.textBox1query);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.textBox2timeout);
@@ -312,7 +338,8 @@
             this.MinimumSize = new System.Drawing.Size(600, 500);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Bad Mail Checker 0.4.2";
+            this.Text = "Bad Mail.ru Checker 0.7";
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -345,6 +372,9 @@
         private System.Windows.Forms.TextBox textBox2timeout;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox textBox1query;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1login;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2pass;
     }
 }
 

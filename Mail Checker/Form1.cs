@@ -58,12 +58,13 @@ namespace Mail_Checker
         {
             if (button3start.Text == "Старт")
             {
-                if (mails.Length == 0 || proxys.Length == 0) return;
+                if (mails == null || proxys == null) return;
                 listView1.Items.Clear();
 
+                Directory.CreateDirectory("results");
                 string outNameTime = DateTime.Now.ToShortDateString() + " - "+ DateTime.Now.ToShortTimeString().Replace(':', '.');
-                goodMailsOut = File.CreateText(outNameTime + " - good.txt");
-                goodMailsWithMessagesOut = File.CreateText(outNameTime + " - " + textBox1query.Text + ".txt");
+                goodMailsOut = File.CreateText("results\\"+outNameTime + " - good.txt");
+                goodMailsWithMessagesOut = File.CreateText("results\\" + outNameTime + " - " + textBox1query.Text + ".txt");
 
                 checker = new Checker(mails, proxys, textBox1query.Text, Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
 
@@ -110,14 +111,11 @@ namespace Mail_Checker
                 goodMailsOut.Flush();
 
 
-                if (e.mail.messages > 0)
+                if (e.mail.messages >= 0)
                 {
                     string[] sub = { e.mail.login, e.mail.pass, e.mail.messages.ToString() };
                     listView1.Items.Add(new ListViewItem(sub));
                     
-
-
-
 
                     goodMailsWithMessagesOut.WriteLine(e.mail.login + ":" + e.mail.pass);
                     goodMailsWithMessagesOut.Flush();
@@ -129,8 +127,11 @@ namespace Mail_Checker
 
         private void ChangeLabels(object sender, CheckEventArgs e)
         {
-
-            this.Invoke(d, new object[] { e });
+            try
+            {
+                this.Invoke(d, new object[] { e });
+            }
+            catch (ObjectDisposedException) { }
             
         }
 
@@ -138,7 +139,29 @@ namespace Mail_Checker
         {
             string[] mailElements = { listView1.SelectedItems[0].SubItems[0].Text, listView1.SelectedItems[0].SubItems[1].Text };
 
+            MailBrowser b = new MailBrowser(mailElements);
+            b.Show();
         }
+
+        private void toolStripMenuItem1login_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(listView1.SelectedItems[0].SubItems[0].Text);
+        }
+
+        private void toolStripMenuItem2pass_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetText(listView1.SelectedItems[0].SubItems[1].Text);
+        }
+
+        private void listView1_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Right)
+            {
+                contextMenuStrip1.Show(e.X, e.Y);
+            }
+        }
+
+
 
 
 
