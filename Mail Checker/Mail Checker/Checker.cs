@@ -43,7 +43,7 @@ namespace Mail_Checker
 
             for (int i = 0; i < proxys.Length; i++)
             {
-                this.proxys.Enqueue(new ProxyStats(proxys[i], 3));
+                this.proxys.Enqueue(new ProxyStats(proxys[i], 5));
             }
             
 
@@ -90,7 +90,7 @@ namespace Mail_Checker
                 string mailLine;
                 mails.TryDequeue(out mailLine);
                 string[] mailElements = mailLine.Split(separs);
-
+                if (mailElements.Length != 2) continue;
 
 
                 string serv = WhatDomain(mailElements[0]);
@@ -101,7 +101,7 @@ namespace Mail_Checker
                 proxys.TryDequeue(out proxyLine);
                 string[] proxyElements = proxyLine.proxy.Split(separs);
 
-                if (Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
+                if (proxyElements.Length != 2 || Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
                     Regex.Matches(proxyElements[1], "^[0-9]*$").Count == 0)
                 {
                     mails.Enqueue(mailLine);
@@ -126,7 +126,7 @@ namespace Mail_Checker
                 else if (error == CheckErrors.noError)
                 {
                     valid++;
-                    proxyLine.stats=3;
+                    proxyLine.stats=5;
                     proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.mailError)
@@ -137,6 +137,7 @@ namespace Mail_Checker
                 else if (error == CheckErrors.connectError)
                 {
                     errors++;
+                    proxyLine.stats--;
                     mails.Enqueue(mailLine);
                     proxys.Enqueue(proxyLine);
                 }
@@ -157,29 +158,29 @@ namespace Mail_Checker
 
         }
 
-        static string WhatDomain(string mail)
+        public static string WhatDomain(string mail)
         {
             string serv = "";
-            if (mail.Contains("@yandex.ru")) serv = "imap.yandex.ru";
+            /*if (mail.Contains("@yandex.ru")) serv = "imap.yandex.ru";
 
-            else if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
+            else*/ if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
             || mail.Contains("@inbox.ru") || mail.Contains("@bk.ru")) serv = "imap.mail.ru";
 
-            else if (mail.Contains("@rambler.ru")) serv = "imap.rambler.ru";
+            //else if (mail.Contains("@rambler.ru")) serv = "imap.rambler.ru";
 
-            else if (mail.Contains("@qip.ru") || mail.Contains("@pochta.ru") ||
-                mail.Contains("@fromru.com") || mail.Contains("@front.ru") ||
-                mail.Contains("@hotbox.ru") || mail.Contains("@hotmail.ru") ||
-                mail.Contains("@krovatka.su") || mail.Contains("@land.ru") ||
-                mail.Contains("@mail15.com") || mail.Contains("@mail333.com") ||
-                mail.Contains("@newmail.ru") || mail.Contains("@nightmail.ru") ||
-                mail.Contains("@nm.ru") || mail.Contains("@pisem.net") ||
-                mail.Contains("@pochtamt.ru") || mail.Contains("@pop3.ru") ||
-                mail.Contains("@rbcmail.ru") || mail.Contains("@smtp.ru") ||
-                mail.Contains("@5ballov.ru") || mail.Contains("@aeterna.ru") ||
-                mail.Contains("@ziza.ru") || mail.Contains("@memori.ru") ||
-                mail.Contains("@photofile.ru") || mail.Contains("@fotoplenka.ru") ||
-                mail.Contains("@pochta.com")) serv = "imap.qip.ru";
+            //else if (mail.Contains("@qip.ru") || mail.Contains("@pochta.ru") ||
+            //    mail.Contains("@fromru.com") || mail.Contains("@front.ru") ||
+            //    mail.Contains("@hotbox.ru") || mail.Contains("@hotmail.ru") ||
+            //    mail.Contains("@krovatka.su") || mail.Contains("@land.ru") ||
+            //    mail.Contains("@mail15.com") || mail.Contains("@mail333.com") ||
+            //    mail.Contains("@newmail.ru") || mail.Contains("@nightmail.ru") ||
+            //    mail.Contains("@nm.ru") || mail.Contains("@pisem.net") ||
+            //    mail.Contains("@pochtamt.ru") || mail.Contains("@pop3.ru") ||
+            //    mail.Contains("@rbcmail.ru") || mail.Contains("@smtp.ru") ||
+            //    mail.Contains("@5ballov.ru") || mail.Contains("@aeterna.ru") ||
+            //    mail.Contains("@ziza.ru") || mail.Contains("@memori.ru") ||
+            //    mail.Contains("@photofile.ru") || mail.Contains("@fotoplenka.ru") ||
+            //    mail.Contains("@pochta.com")) serv = "imap.qip.ru";
 
             else serv = "";
             return serv;
@@ -253,11 +254,20 @@ namespace Mail_Checker
                 error = CheckErrors.connectError;
             }
 
+
             if (success)
             {
-                messNum += Regex.Matches(resp2.BodyStr, "\"From\":\".*" + query + "\"").Count;
+                success = resp2.BodyStr.Contains("Почта Mail.Ru");
             }
-            
+
+            if (success)
+            {
+                messNum += Regex.Matches(resp2.BodyStr, "\"correspondents\":").Count;
+            }
+            else if (error == CheckErrors.noError)
+            {
+                error = CheckErrors.connectError;
+            }
 
             http.CloseAllConnections();
             http.Dispose();
