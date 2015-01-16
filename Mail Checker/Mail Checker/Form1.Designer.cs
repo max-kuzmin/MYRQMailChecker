@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("dzfgdgds");
             this.button1mails = new System.Windows.Forms.Button();
             this.button2proxys = new System.Windows.Forms.Button();
             this.button3start = new System.Windows.Forms.Button();
@@ -94,12 +95,18 @@
             this.Login,
             this.Pass,
             this.Messages});
+            this.listView1.FullRowSelect = true;
+            this.listView1.GridLines = true;
+            this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem1});
             this.listView1.Location = new System.Drawing.Point(228, 12);
+            this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(342, 429);
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
             // 
             // Login
             // 

@@ -29,6 +29,8 @@ namespace Mail_Checker
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.ShowDialog();
 
+            if (dialog.FileName == "") return;
+
             mails = File.ReadAllLines(dialog.FileName);
 
             label10mails.Text = mails.Length.ToString();
@@ -41,6 +43,7 @@ namespace Mail_Checker
         {
             OpenFileDialog dialog = new OpenFileDialog();
             dialog.ShowDialog();
+            if (dialog.FileName == "") return;
 
             proxys = File.ReadAllLines(dialog.FileName);
 
@@ -55,6 +58,8 @@ namespace Mail_Checker
         {
             if (button3start.Text == "Старт")
             {
+                if (mails.Length == 0 || proxys.Length == 0) return;
+                listView1.Items.Clear();
 
                 string outNameTime = DateTime.Now.ToShortDateString() + " - "+ DateTime.Now.ToShortTimeString().Replace(':', '.');
                 goodMailsOut = File.CreateText(outNameTime + " - good.txt");
@@ -109,6 +114,10 @@ namespace Mail_Checker
                 {
                     string[] sub = { e.mail.login, e.mail.pass, e.mail.messages.ToString() };
                     listView1.Items.Add(new ListViewItem(sub));
+                    
+
+
+
 
                     goodMailsWithMessagesOut.WriteLine(e.mail.login + ":" + e.mail.pass);
                     goodMailsWithMessagesOut.Flush();
@@ -123,6 +132,12 @@ namespace Mail_Checker
 
             this.Invoke(d, new object[] { e });
             
+        }
+
+        private void listView1_DoubleClick(object sender, EventArgs e)
+        {
+            string[] mailElements = { listView1.SelectedItems[0].SubItems[0].Text, listView1.SelectedItems[0].SubItems[1].Text };
+
         }
 
 
