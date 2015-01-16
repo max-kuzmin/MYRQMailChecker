@@ -29,7 +29,6 @@ namespace Mail_Checker
         char[] separs = { ':', ';' };
         ConcurrentQueue<string> mails;
         ConcurrentQueue<ProxyStats> proxys;
-        //string serv = "imap.yandex.ru";
         string query;
 
         int workingThreads = 0, errors = 0, valid = 0, novalid = 0;
@@ -87,44 +86,34 @@ namespace Mail_Checker
 
             while (mails.Count > 0 && proxys.Count > 0 && started)
             {
-                int mailType = 0;
 
                 string mailLine;
                 mails.TryDequeue(out mailLine);
                 string[] mailElements = mailLine.Split(separs);
 
-                string serv = "";
-                if (mailElements[0].Contains("@yandex.ru")) serv = "imap.yandex.ru";
-                else if (mailElements[0].Contains("@rambler.ru")) serv = "imap.rambler.ru";
 
-                else if (mailElements[0].Contains("@qip.ru") || mailElements[0].Contains("@pochta.ru") ||
-                    mailElements[0].Contains("@fromru.com") || mailElements[0].Contains("@front.ru") ||
-                    mailElements[0].Contains("@hotbox.ru") || mailElements[0].Contains("@hotmail.ru") ||
-                    mailElements[0].Contains("@krovatka.su") || mailElements[0].Contains("@land.ru") ||
-                    mailElements[0].Contains("@mail15.com") || mailElements[0].Contains("@mail333.com") ||
-                    mailElements[0].Contains("@newmail.ru") || mailElements[0].Contains("@nightmail.ru") ||
-                    mailElements[0].Contains("@nm.ru") || mailElements[0].Contains("@pisem.net") ||
-                    mailElements[0].Contains("@pochtamt.ru") || mailElements[0].Contains("@pop3.ru") ||
-                    mailElements[0].Contains("@rbcmail.ru") || mailElements[0].Contains("@smtp.ru") ||
-                    mailElements[0].Contains("@5ballov.ru") || mailElements[0].Contains("@aeterna.ru") ||
-                    mailElements[0].Contains("@ziza.ru") || mailElements[0].Contains("@memori.ru") ||
-                    mailElements[0].Contains("@photofile.ru") || mailElements[0].Contains("@fotoplenka.ru") ||
-                    mailElements[0].Contains("@pochta.com")) serv = "imap.qip.ru";
 
-                else if (mailElements[0].Contains("@mail.ru") || mailElements[0].Contains("@list.ru") 
-                    || mailElements[0].Contains("@inbox.ru") || mailElements[0].Contains("@bk.ru")) mailType = 1;
+                string serv = WhatDomain(mailElements[0]);
 
-                else continue;
+                if (serv == "") continue;
 
                 ProxyStats proxyLine;
                 proxys.TryDequeue(out proxyLine);
                 string[] proxyElements = proxyLine.proxy.Split(separs);
 
+                if (Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
+                    Regex.Matches(proxyElements[1], "^[0-9]*$").Count == 0)
+                {
+                    mails.Enqueue(mailLine);
+                    continue;
+                }
+
+
                 int messNum=0;
                 CheckErrors error = CheckErrors.noError;
 
-                if (mailType==0) ImapMailsCheck(mailElements, serv, proxyElements, out messNum, out error);
-                else if (mailType == 1) MailRuCheck(mailElements, proxyElements, out messNum, out error);
+                if (serv == "imap.mail.ru") MailRuCheck(mailElements, proxyElements, out messNum, out error);
+                else ImapMailsCheck(mailElements, serv, proxyElements, out messNum, out error);
 
 
                 if (error == CheckErrors.proxyError)
@@ -137,13 +126,12 @@ namespace Mail_Checker
                 else if (error == CheckErrors.noError)
                 {
                     valid++;
-                    proxyLine.stats++;
+                    proxyLine.stats=3;
                     proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.mailError)
                 {
                     novalid++;
-                    proxyLine.stats++;
                     proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.connectError)
@@ -156,7 +144,7 @@ namespace Mail_Checker
 
 
                 MailInfo mInfo = new MailInfo(mailElements[0], mailElements[1], messNum);
-                CheckState chState = new CheckState(mails.Count, proxys.Count, errors, valid, novalid, workingThreads);
+                CheckState chState = new CheckState(mails.Count + workingThreads, proxys.Count + workingThreads, errors, valid, novalid, workingThreads);
                 OneCheckDone(this, new CheckEventArgs(error, mInfo, chState));
 
 
@@ -169,6 +157,34 @@ namespace Mail_Checker
 
         }
 
+        static string WhatDomain(string mail)
+        {
+            string serv = "";
+            if (mail.Contains("@yandex.ru")) serv = "imap.yandex.ru";
+
+            else if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
+            || mail.Contains("@inbox.ru") || mail.Contains("@bk.ru")) serv = "imap.mail.ru";
+
+            else if (mail.Contains("@rambler.ru")) serv = "imap.rambler.ru";
+
+            else if (mail.Contains("@qip.ru") || mail.Contains("@pochta.ru") ||
+                mail.Contains("@fromru.com") || mail.Contains("@front.ru") ||
+                mail.Contains("@hotbox.ru") || mail.Contains("@hotmail.ru") ||
+                mail.Contains("@krovatka.su") || mail.Contains("@land.ru") ||
+                mail.Contains("@mail15.com") || mail.Contains("@mail333.com") ||
+                mail.Contains("@newmail.ru") || mail.Contains("@nightmail.ru") ||
+                mail.Contains("@nm.ru") || mail.Contains("@pisem.net") ||
+                mail.Contains("@pochtamt.ru") || mail.Contains("@pop3.ru") ||
+                mail.Contains("@rbcmail.ru") || mail.Contains("@smtp.ru") ||
+                mail.Contains("@5ballov.ru") || mail.Contains("@aeterna.ru") ||
+                mail.Contains("@ziza.ru") || mail.Contains("@memori.ru") ||
+                mail.Contains("@photofile.ru") || mail.Contains("@fotoplenka.ru") ||
+                mail.Contains("@pochta.com")) serv = "imap.qip.ru";
+
+            else serv = "";
+            return serv;
+        }
+
         private void MailRuCheck(string[] mailElements, string[] proxyElements, out int messNum, out CheckErrors error)
         {
 
@@ -177,7 +193,7 @@ namespace Mail_Checker
 
             messNum = 0;
             error = CheckErrors.noError;
-            //bool success = true;
+            bool success = true;
 
             Http http = new Http();
             http.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
@@ -185,7 +201,15 @@ namespace Mail_Checker
             http.SendCookies = true;
             http.SaveCookies = true;
             http.CookieDir = "memory";
-            
+
+
+            http.ConnectTimeout = timeout;
+            http.ReadTimeout = timeout;
+            http.ProxyDomain = proxyElements[0];
+            http.ProxyPort = Convert.ToInt32(proxyElements[1]);
+
+
+
 
             HttpRequest req = new HttpRequest();
             req.AddParam("Domain", loginDomain[1]);
@@ -195,23 +219,45 @@ namespace Mail_Checker
             req.Path = "/cgi-bin/auth?from=splash";
             req.HttpVerb = "POST";
 
+
+
             HttpResponse resp = null;
             resp = http.SynchronousRequest("auth.mail.ru", 443, true, req);
-            
 
-
-            HttpRequest req2 = new HttpRequest();
-            req2.HttpVerb = "GET";
-            req2.Path = "/search/";
-            req2.AddParam("q_from", query);
-            
+            if (resp == null)
+            {
+                success = false;
+                error = CheckErrors.proxyError;
+            }
+            else if (resp.BodyStr.Contains( mailElements[0] + "&fail=1"))
+            {
+                success = false;
+                error = CheckErrors.mailError;
+            }
 
 
             HttpResponse resp2 = null;
-            resp2 = http.SynchronousRequest("e.mail.ru", 443, true, req2);
+            if (success)
+            {
+                HttpRequest req2 = new HttpRequest();
+                req2.HttpVerb = "GET";
+                req2.Path = "/search/";
+                req2.AddParam("q_from", query);
 
-            Regex.Matches(resp2.BodyStr, "\"From\":\".*mail.ru\"");
-            messNum += Regex.Matches(resp2.BodyStr, "\"From\":\".*" + query + "\"").Count;
+                resp2 = http.SynchronousRequest("e.mail.ru", 443, true, req2);
+
+            }
+            if (error == CheckErrors.noError && resp2 == null)
+            {
+                success = false;
+                error = CheckErrors.connectError;
+            }
+
+            if (success)
+            {
+                messNum += Regex.Matches(resp2.BodyStr, "\"From\":\".*" + query + "\"").Count;
+            }
+            
 
             http.CloseAllConnections();
             http.Dispose();
@@ -234,15 +280,7 @@ namespace Mail_Checker
 
 
             imap.HttpProxyHostname = proxyElements[0];
-            try
-            {
-                imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
-            }
-            catch (FormatException)
-            {
-                success = false;
-                error = CheckErrors.proxyError;
-            }
+            imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
 
             if (success == true)
             {
@@ -257,33 +295,59 @@ namespace Mail_Checker
             }
             else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
 
+            Mailboxes mboxes = null;
             if (success == true)
             {
-                success = imap.SelectMailbox("Inbox");
+                mboxes = imap.ListMailboxes("", "");
             }
-            else if (error == CheckErrors.noError) error = CheckErrors.mailError;
+            else if (!success && error == CheckErrors.noError) error = CheckErrors.mailError;
 
-
-            if (success == true)
+            if (mboxes != null)
             {
-                MessageSet messageSet = imap.Search("FROM " + query, false);
-                if (messageSet != null) messNum += messageSet.Count;
-            }
-            else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+                for (int i = 0; i < mboxes.Count; i++)
+                {
+                    string mboxName = mboxes.GetName(i);
+                    imap.SelectMailbox(mboxName);
+                    MessageSet messageSet = imap.Search("FROM " + query, false);
 
-
-            if (success == true)
-            {
-                success = imap.SelectMailbox("Trash");
-            }
-            else if (error == CheckErrors.noError) error = CheckErrors.connectError;
-
-            if (success == true)
-            {
-                MessageSet messageSet = imap.Search("FROM " + query, false);
-                if (messageSet != null) messNum += messageSet.Count;
+                    if (messageSet != null) messNum += messageSet.Count;
+                    else if (error == CheckErrors.noError)
+                    {
+                        messNum = 0;
+                        error = CheckErrors.connectError;
+                        break;
+                    }
+                }
             }
             else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+
+            //if (success == true)
+            //{
+            //    success = imap.SelectMailbox("Inbox");
+            //}
+            //else if (error == CheckErrors.noError) error = CheckErrors.mailError;
+
+
+            //if (success == true)
+            //{
+            //    MessageSet messageSet = imap.Search("FROM " + query, false);
+            //    if (messageSet != null) messNum += messageSet.Count;
+            //}
+            //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+
+
+            //if (success == true)
+            //{
+            //    success = imap.SelectMailbox("Trash");
+            //}
+            //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+
+            //if (success == true)
+            //{
+            //    MessageSet messageSet = imap.Search("FROM " + query, false);
+            //    if (messageSet != null) messNum += messageSet.Count;
+            //}
+            //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
 
 
             imap.Disconnect();
