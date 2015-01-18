@@ -52,17 +52,20 @@ namespace Mail_Checker
         }
 
 
+        string outNameTime;
 
 
         private void button3start_Click(object sender, EventArgs e)
         {
+            
             if (button3start.Text == "Старт")
             {
                 if (mails == null || proxys == null) return;
                 listView1.Items.Clear();
 
                 Directory.CreateDirectory("results");
-                string outNameTime = DateTime.Now.ToShortDateString() + " - "+ DateTime.Now.ToShortTimeString().Replace(':', '.');
+
+                outNameTime = DateTime.Now.ToShortDateString() + " - " + DateTime.Now.ToShortTimeString().Replace(':', '.');
                 goodMailsOut = File.CreateText("results\\"+outNameTime + " - good.txt");
                 goodMailsWithMessagesOut = File.CreateText("results\\" + outNameTime + " - " + textBox1query.Text + ".txt");
 
@@ -90,6 +93,13 @@ namespace Mail_Checker
                 button1mails.Enabled = true;
                 button2proxys.Enabled = true;
                 textBox1query.Enabled = true;
+
+                StreamWriter outMailsLasts = File.CreateText("results\\" + outNameTime + " - " + "not_checked_mails" + ".txt");
+                string[] lastsMails = checker.mails.ToArray();
+                for (int i = 0; i < lastsMails.Length; i++)
+                {
+                    outMailsLasts.Write(lastsMails[i]+"\n");
+                }
             }
         }
 
@@ -111,9 +121,10 @@ namespace Mail_Checker
                 goodMailsOut.Flush();
 
 
-                if (e.mail.messages >= 0)
+                if (e.mail.messages > 0)
                 {
-                    string[] sub = { e.mail.login, e.mail.pass, e.mail.messages.ToString() };
+                    string messNum = e.mail.messages.ToString();
+                    string[] sub = { e.mail.login, e.mail.pass, messNum };
                     listView1.Items.Add(new ListViewItem(sub));
                     
 
@@ -131,7 +142,7 @@ namespace Mail_Checker
             {
                 this.Invoke(d, new object[] { e });
             }
-            catch (ObjectDisposedException) { }
+            catch /*(ObjectDisposedException)*/ { }
             
         }
 
@@ -141,6 +152,13 @@ namespace Mail_Checker
 
             MailBrowser b = new MailBrowser(mailElements);
             b.Show();
+            this.Enabled = false;
+            b.FormClosed += b_FormClosed;
+        }
+
+        void b_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.Enabled = true;
         }
 
         private void toolStripMenuItem1login_Click(object sender, EventArgs e)
@@ -157,7 +175,7 @@ namespace Mail_Checker
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                contextMenuStrip1.Show(e.X, e.Y);
+                contextMenuStrip1.Show(listView1 ,e.Location.X, e.Location.Y);
             }
         }
 

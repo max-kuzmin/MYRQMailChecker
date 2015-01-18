@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1main));
             this.button1mails = new System.Windows.Forms.Button();
             this.button2proxys = new System.Windows.Forms.Button();
             this.button3start = new System.Windows.Forms.Button();
@@ -334,11 +335,12 @@
             this.Controls.Add(this.button3start);
             this.Controls.Add(this.button2proxys);
             this.Controls.Add(this.button1mails);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(600, 500);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Bad Mail.ru Checker 0.7";
+            this.Text = "Bad Mail.ru Checker 0.8";
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
