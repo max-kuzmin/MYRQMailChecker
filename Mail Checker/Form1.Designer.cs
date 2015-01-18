@@ -267,7 +267,7 @@
             this.textBox2timeout.Name = "textBox2timeout";
             this.textBox2timeout.Size = new System.Drawing.Size(79, 22);
             this.textBox2timeout.TabIndex = 18;
-            this.textBox2timeout.Text = "5";
+            this.textBox2timeout.Text = "10";
             // 
             // label9
             // 
@@ -284,7 +284,7 @@
             this.textBox1query.Name = "textBox1query";
             this.textBox1query.Size = new System.Drawing.Size(149, 22);
             this.textBox1query.TabIndex = 20;
-            this.textBox1query.Text = "@steampowered.com";
+            this.textBox1query.Text = "@somesite.com";
             // 
             // contextMenuStrip1
             // 

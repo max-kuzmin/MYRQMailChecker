@@ -92,7 +92,9 @@ namespace Mail_Checker
             {
 
                 string mailLine;
-                mails.TryPop(out mailLine);
+
+                if (!mails.TryPop(out mailLine)) continue;
+
                 string[] mailElements = mailLine.Split(separs);
                 if (mailElements.Length != 2) continue;
 
@@ -102,7 +104,11 @@ namespace Mail_Checker
                 if (serv == "") continue;
 
                 ProxyStats proxyLine;
-                proxys.TryDequeue(out proxyLine);
+                if (!proxys.TryDequeue(out proxyLine))
+                {
+                    mails.Push(mailLine);
+                    continue;
+                }
                 string[] proxyElements = proxyLine.proxy.Split(separs);
 
                 if (proxyElements.Length != 2 || Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
@@ -117,8 +123,13 @@ namespace Mail_Checker
                 CheckErrors error = CheckErrors.noError;
 
                 if (serv == "imap.mail.ru") MailRuCheck(mailElements, proxyElements, out messNum, out error);
-                else ImapMailsCheck(mailElements, serv, proxyElements, out messNum, out error);
-
+                else if (serv == "imap.yandex.ru") //YandexCheck(mailElements, proxyElements, out messNum, out error);
+                    ImapMailsCheck(mailElements, serv, proxyElements, out messNum, out error);
+                else
+                {
+                    proxys.Enqueue(proxyLine);
+                    continue;
+                }
 
                 if (error == CheckErrors.proxyError)
                 {
@@ -165,10 +176,10 @@ namespace Mail_Checker
         public static string WhatDomain(string mail)
         {
             string serv = "";
-            /*if (mail.Contains("@yandex.ru")) serv = "imap.yandex.ru";
+            if (mail.Contains("@yandex.ru")) serv = "imap.yandex.ru";
 
-            else*/ if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
-            || mail.Contains("@inbox.ru") || mail.Contains("@bk.ru")) serv = "imap.mail.ru";
+            //else if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
+            //|| mail.Contains("@inbox.ru") || mail.Contains("@bk.ru")) serv = "imap.mail.ru";
 
             //else if (mail.Contains("@rambler.ru")) serv = "imap.rambler.ru";
 
@@ -383,7 +394,123 @@ namespace Mail_Checker
         }
 
 
-        
+
+
+        //private void YandexCheck(string[] mailElements, string[] proxyElements, out int messNum, out CheckErrors error)
+        //{
+
+
+        //    messNum = 0;
+        //    error = CheckErrors.noError;
+        //    bool success = true;
+
+        //    Http http = new Http();
+        //    http.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
+        //    http.FollowRedirects = true;
+        //    http.SendCookies = true;
+        //    http.SaveCookies = true;
+        //    http.CookieDir = "memory";
+        //    http.MaxResponseSize = 100000;
+
+        //    http.ConnectTimeout = timeout;
+        //    http.ReadTimeout = timeout;
+        //    http.ProxyDomain = proxyElements[0];
+        //    http.ProxyPort = Convert.ToInt32(proxyElements[1]);
+        //    http.UserAgent = "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.99 Safari/537.36";
+
+        //    //=======================================
+        //    HttpRequest req = new HttpRequest();
+        //    req.AddHeader("mode", "auth");
+        //    req.AddHeader("from", "mail");
+        //    req.AddHeader("origin", "hostroot_ru_reliable_l_enter");
+        //    req.AddHeader("retpath", "https://mail.yandex.ru");
+        //    req.AddParam("login", mailElements[0]);
+        //    req.AddParam("passwd", mailElements[1]);
+        //    req.AddParam("twoweeks", "yes");
+        //    req.Path = "/passport";
+        //    req.HttpVerb = "POST";
+
+
+        //    //логин-запрос
+        //    HttpResponse resp = null;
+        //    resp = http.SynchronousRequest("passport.yandex.ru", 443, true, req);
+
+
+        //    //если пуст, то ошибка прокси
+        //    if (resp == null)
+        //    {
+        //        success = false;
+        //        error = CheckErrors.proxyError;
+        //    }
+        //    //если содержит фейл или блок, то ошибка почты
+        //    else if (resp.BodyStr.Contains("error-msg") /*|| resp.BodyStr.Contains("почтовый ящик был взломан")*/)
+        //    {
+        //        success = false;
+        //        error = CheckErrors.mailError;
+        //    }
+        //    //если не содержит, то ошибка прокси
+        //    else if (!resp.BodyStr.Contains("yandex.ru\">Яндекс"))
+        //    {
+        //        success = false;
+        //        error = CheckErrors.proxyError;
+        //    }
+
+        //    //поиск-запрос
+        //    HttpResponse resp2 = null;
+        //    if (success)
+        //    {
+
+        //        HttpRequest req7 = new HttpRequest();
+        //        req7.AddHeader("_h", "messages,messages-pager");
+        //        req7.AddParam("_handlers", "messages");
+        //        req7.AddParam("search", "yes");
+        //        //req7.AddParam("scope", "hdr_from");
+        //        req7.AddParam("request", "yandex.ru");
+        //        req7.AddParam("_page", "messages");
+        //        req7.AddParam("_service", "mail");
+        //        //req7.AddParam("_locale", "ru");
+        //        req7.Path = "/neo2/handlers/handlers3.jsx";
+        //        req7.HttpVerb = "POST";
+
+
+        //        //HttpRequest req2 = new HttpRequest();
+        //        //req2.HttpVerb = "GET";
+        //        //req2.Path = "/neo2/?#search/scope=hdr_from&request=" + query;
+
+        //        resp2 = http.SynchronousRequest("mail.yandex.ru", 443, true, req7);
+
+        //    }
+
+        //    //если пустой или не содержит поиска, то ошибка соединения
+        //    if (error == CheckErrors.noError && (resp2 == null /*|| !resp2.BodyStr.Contains("SearchPerson")*/))
+        //    {
+        //        success = false;
+        //        error = CheckErrors.connectError;
+        //    }
+
+
+        //    //поиск сообщний
+        //    if (success)
+        //    {
+        //        MatchCollection foundCollection = Regex.Matches(resp2.BodyStr, "\"count\":.*");
+        //        if (foundCollection.Count > 0)
+        //        {
+        //            string found = foundCollection[0].Value.Replace("\"count\":", "");
+        //            messNum = Convert.ToInt32(found);
+        //        }
+        //        else messNum = 0;
+        //        //if (messNum != 0)
+        //        //{
+        //        //    File.CreateText("C:\\Users\\Max\\Desktop\\123\\" + mailElements[0]+"_1").Write(resp.BodyStr);
+        //        //    File.CreateText("C:\\Users\\Max\\Desktop\\123\\" + mailElements[0] + "_2").Write(resp2.BodyStr);
+        //        //}
+        //    }
+
+
+        //    http.CloseAllConnections();
+        //    http.Dispose();
+
+        //}
 
 
     }

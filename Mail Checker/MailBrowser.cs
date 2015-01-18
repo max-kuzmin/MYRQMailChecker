@@ -50,12 +50,12 @@ namespace Mail_Checker
 
         private void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
-            webBrowser1.Document.Cookie = cookies;
+            //webBrowser1.Document.Cookie = cookies;
         }
 
         private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
         {
-            cookies = webBrowser1.Document.Cookie;
+            //cookies = webBrowser1.Document.Cookie;
         }
 
 
