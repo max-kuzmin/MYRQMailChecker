@@ -100,6 +100,8 @@ namespace Mail_Checker
                 {
                     outMailsLasts.Write(lastsMails[i]+"\n");
                 }
+                outMailsLasts.Flush();
+                outMailsLasts.Close();
             }
         }
 
@@ -128,7 +130,7 @@ namespace Mail_Checker
                     listView1.Items.Add(new ListViewItem(sub));
                     
 
-                    goodMailsWithMessagesOut.WriteLine(e.mail.login + ":" + e.mail.pass);
+                    goodMailsWithMessagesOut.WriteLine(e.mail.login + ":" + e.mail.pass+" - " + messNum);
                     goodMailsWithMessagesOut.Flush();
 
                 }
