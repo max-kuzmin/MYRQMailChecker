@@ -34,6 +34,7 @@ namespace Mail_Checker
         public ConcurrentStack<string> mails;
         ConcurrentQueue<ProxyStats> proxys;
         string query;
+        string queryLong = "";
 
         int workingThreads = 0, errors = 0, valid = 0, novalid = 0;
         int threads, timeout;
@@ -54,6 +55,18 @@ namespace Mail_Checker
             this.query = query;
             this.threads = threads;
             this.timeout = timeout;
+
+
+
+            string[] splitted = query.Split(new char[] { '.', '@' });
+            for (int i = 0; i < splitted.Length; i++)
+            {
+                if (splitted[i] != "")
+                {
+                    queryLong += "from " + splitted[i];
+                    queryLong += (i != (splitted.Length - 1)) ? (" ") : ("");
+                }
+            }
             
         }
 
@@ -321,11 +334,9 @@ namespace Mail_Checker
             imap.HttpProxyHostname = proxyElements[0];
             imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
 
-            if (success == true)
-            {
-                success = imap.Connect(serv);
-            }
-            else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
+
+            success = imap.Connect(serv);
+
 
 
             if (success == true)
@@ -334,56 +345,35 @@ namespace Mail_Checker
             }
             else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
 
-            Mailboxes mboxes = null;
+            
+
             if (success == true)
             {
-                mboxes = imap.ListMailboxes("", "");
+                success = imap.SelectMailbox("INBOX");
+                
             }
-            else if (!success && error == CheckErrors.noError) error = CheckErrors.mailError;
+            else if (error == CheckErrors.noError) error = CheckErrors.mailError;
 
-            if (mboxes != null)
+
+            MessageSet messageSet = null;
+            if (success == true)
             {
-                for (int i = 0; i < mboxes.Count; i++)
-                {
-                    string mboxName = mboxes.GetName(i);
-                    imap.SelectMailbox(mboxName);
-                    MessageSet messageSet = imap.Search("FROM " + query, false);
-
-                    if (messageSet != null) messNum += messageSet.Count;
-                    else if (error == CheckErrors.noError)
-                    {
-                        messNum = 0;
-                        error = CheckErrors.connectError;
-                        break;
-                    }
-                }
+                messageSet = imap.Search(queryLong, false);  
             }
+            else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+
+            if (messageSet != null) messNum += messageSet.Count;
             else if (error == CheckErrors.noError) error = CheckErrors.connectError;
 
             //if (success == true)
             //{
-            //    success = imap.SelectMailbox("Inbox");
-            //}
-            //else if (error == CheckErrors.noError) error = CheckErrors.mailError;
-
-
-            //if (success == true)
-            //{
-            //    MessageSet messageSet = imap.Search("FROM " + query, false);
-            //    if (messageSet != null) messNum += messageSet.Count;
-            //}
-            //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
-
-
-            //if (success == true)
-            //{
-            //    success = imap.SelectMailbox("Trash");
+            //    success = imap.SelectMailbox("Удалённые");
             //}
             //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
 
             //if (success == true)
             //{
-            //    MessageSet messageSet = imap.Search("FROM " + query, false);
+            //    MessageSet messageSet = imap.Search(queryLong, true);
             //    if (messageSet != null) messNum += messageSet.Count;
             //}
             //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
@@ -464,15 +454,22 @@ namespace Mail_Checker
         //        req7.AddHeader("_h", "messages,messages-pager");
         //        req7.AddParam("_handlers", "messages");
         //        req7.AddParam("search", "yes");
-        //        //req7.AddParam("scope", "hdr_from");
+        //        req7.AddParam("scope", "hdr_from");
         //        req7.AddParam("request", "yandex.ru");
         //        req7.AddParam("_page", "messages");
         //        req7.AddParam("_service", "mail");
-        //        //req7.AddParam("_locale", "ru");
+        //        req7.AddParam("_locale", "ru");
         //        req7.Path = "/neo2/handlers/handlers3.jsx";
         //        req7.HttpVerb = "POST";
 
-
+        //        string lol = "";
+        //        for (int i = 0; i < resp.NumCookies; i++)
+        //        {
+                    
+        //            lol += resp.GetCookieName(i) + "=" + resp.GetCookieValue(i) + "; ";
+        //        }
+        //        lol += http.GetCookieXml("mail.yandex.ru");
+        //        req7.AddHeader("Cookie", lol);
         //        //HttpRequest req2 = new HttpRequest();
         //        //req2.HttpVerb = "GET";
         //        //req2.Path = "/neo2/?#search/scope=hdr_from&request=" + query;
