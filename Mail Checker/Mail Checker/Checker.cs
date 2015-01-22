@@ -66,7 +66,7 @@ namespace Mail_Checker
             List<Thread> threadsList = new List<Thread>();
 
 
-            for (int i = 0; i < threads && i<500; i++)
+            for (int i = 0; i < threads; i++)
             {
                 Thread t = new Thread(new ThreadStart(Check));
                 t.Start();
@@ -235,12 +235,12 @@ namespace Mail_Checker
                 string res1str = res1.ToString();
 
 
-                if (res1str.Contains("&captcha=1"))
+                if (res1str.Contains("&captcha=1") || res1str.Contains("Ваш ящик заблокирован"))
                 {
                     error = CheckErrors.anotherError;
                     return;
                 }
-                else if (res1str.Contains("&fail=1") || res1str.Contains("Ваш ящик заблокирован"))
+                else if (res1str.Contains("&fail=1"))
                 {
                     error = CheckErrors.mailError;
                     return;
@@ -276,10 +276,18 @@ namespace Mail_Checker
                     }
                     else
                     {
-                        string foundStr = (Regex.Matches(res2str, "Входящие \\([0-9]*\\)"))[0].Value;
-                        foundStr = foundStr.Replace("Входящие (", "").Replace(")", "");
+                        MatchCollection col = Regex.Matches(res2str, "[0-9]*\\)</option>");
 
-                        messages[i] = Convert.ToInt32(foundStr);
+                        for (int ii = 0; ii < col.Count; ii++)
+                        {
+                            string foundStr = col[ii].Value;
+                            foundStr = foundStr.Replace(")</option>", "");
+
+                            messages[i] += Convert.ToInt32(foundStr);
+                        }
+
+                        
+
                     }
                 }
 
