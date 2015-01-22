@@ -8,13 +8,13 @@ namespace Mail_Checker
     enum CheckErrors {
         proxyError,
         mailError,
-        connectError,
+        anotherError,
         noError
     }
 
     struct MailInfo
     {
-        public MailInfo(string login, string pass, int messages)
+        public MailInfo(string login, string pass, int[] messages)
         {
             this.login = login;
             this.pass = pass;
@@ -23,7 +23,7 @@ namespace Mail_Checker
 
 
         public string login, pass;
-        public int messages;
+        public int[] messages;
     }
 
     struct CheckState
@@ -42,7 +42,7 @@ namespace Mail_Checker
         public int mails, proxys, errors, valid, novalid, threads;
     }
 
-    class CheckEventArgs
+    class CheckEventArgs: EventArgs
     {
         public CheckErrors error;
         public MailInfo mail;
