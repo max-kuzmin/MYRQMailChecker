@@ -50,7 +50,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MailBrowser";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "MailBrowser";
+            this.Text = "Mail Browser";
             this.ResumeLayout(false);
 
         }

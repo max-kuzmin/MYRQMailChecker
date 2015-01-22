@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Windows.Forms;
 using System.IO;
+using System.Collections.Generic;
+using System.Drawing;
 
 
 
@@ -13,7 +15,8 @@ namespace Mail_Checker
         Checker checker;
         string[] mails, proxys;
         SetStateDelegate d;
-        StreamWriter goodMailsWithMessagesOut, goodMailsOut;
+        List<StreamWriter> goodMailsWithMessagesOut;
+        StreamWriter goodMailsOut;
 
         public Form1main()
         {
@@ -60,22 +63,74 @@ namespace Mail_Checker
             
             if (button3start.Text == "Старт")
             {
-                if (mails == null || proxys == null) return;
+
+                if (mails == null || proxys == null || textBox1query.Text == "") return;
+
+
+                try
+                {
+                    Convert.ToInt32(textBox1threads.Text);
+                    Convert.ToInt32(textBox2timeout.Text);
+                }
+                catch
+                {
+                    return;
+                }
+                
+
+
+                List<string> querys = new List<string>(textBox1query.Text.Split('\n'));
+                for (int i = 0; i < querys.Count; i++)
+                {
+                    querys[i] = querys[i].Replace("\r", "");
+                    if (querys[i] == "")
+                    {
+                        querys.Remove(querys[i]);
+                        i--;
+                    }
+                }
+
                 listView1.Items.Clear();
+                listView1.Columns.Clear();
+
+                this.Width = 260 + (querys.Count+2) * 150;
+                listView1.Width = (querys.Count+2) * 150+5;
+                listView1.Columns.Add("Login", "Логин", 150);
+                listView1.Columns.Add("Pass", "Пароль", 150);
+                for (int i = 0; i < querys.Count; i++)
+                {
+                    listView1.Columns.Add(querys[i], querys[i], 150);
+                }
+
+                
 
                 Directory.CreateDirectory("results");
 
                 outNameTime = DateTime.Now.ToShortDateString() + " - " + DateTime.Now.ToShortTimeString().Replace(':', '.');
-                goodMailsOut = File.CreateText("results\\"+outNameTime + " - good.txt");
-                goodMailsWithMessagesOut = File.CreateText("results\\" + outNameTime + " - " + textBox1query.Text + ".txt");
 
-                checker = new Checker(mails, proxys, textBox1query.Text, Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
+                try
+                {
+                    goodMailsOut = File.CreateText("results\\" + outNameTime + " - good.txt");
+
+                    goodMailsWithMessagesOut = new List<StreamWriter>();
+
+                    for (int i = 0; i < querys.Count; i++)
+                    {
+                        goodMailsWithMessagesOut.Add(File.CreateText("results\\" + outNameTime + " - " + querys[i] + ".txt"));
+                    }
+                }
+                catch (IOException)
+                {
+                    return;
+                }
+
+                checker = new Checker(mails, proxys, querys.ToArray(), Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
 
                 checker.OneCheckDone += ChangeLabels;
 
                 checker.Start();
 
-
+                button3start.BackColor = Color.LightSalmon;
                 button3start.Text = "Стоп";
                 textBox1threads.Enabled = false;
                 textBox2timeout.Enabled = false;
@@ -87,6 +142,7 @@ namespace Mail_Checker
             {
                 checker.Stop();
 
+                button3start.BackColor = Color.LightGreen;
                 button3start.Text = "Старт";
                 textBox1threads.Enabled = true;
                 textBox2timeout.Enabled = true;
@@ -122,16 +178,38 @@ namespace Mail_Checker
                 goodMailsOut.WriteLine(e.mail.login + ":" + e.mail.pass);
                 goodMailsOut.Flush();
 
+                bool notEmpty = false;
 
-                if (e.mail.messages > 0)
+
+                for (int i = 0; i < e.mail.messages.Length; i++)
                 {
-                    string messNum = e.mail.messages.ToString();
-                    string[] sub = { e.mail.login, e.mail.pass, messNum };
-                    listView1.Items.Add(new ListViewItem(sub));
-                    
+                    if (e.mail.messages[i] > 0)
+                    {
+                        notEmpty = true;
+                        break;
+                    }
+                }
 
-                    goodMailsWithMessagesOut.WriteLine(e.mail.login + ":" + e.mail.pass+" - " + messNum);
-                    goodMailsWithMessagesOut.Flush();
+                if (notEmpty)
+                {
+
+                    ListViewItem item = new ListViewItem(e.mail.login);
+                    //item.SubItems.Add(e.mail.login);
+                    item.SubItems.Add(e.mail.pass);
+
+
+                    for (int i = 0; i < e.mail.messages.Length; i++)
+                    {
+                        item.SubItems.Add(e.mail.messages[i].ToString());
+                        if (e.mail.messages[i] > 0)
+                        {
+                            goodMailsWithMessagesOut[i].WriteLine(e.mail.login + ":" + e.mail.pass + " - " + e.mail.messages[i]);
+                            goodMailsWithMessagesOut[i].Flush();
+                        }
+                    }
+
+                    listView1.Items.Add(item);
+
 
                 }
             }
@@ -144,7 +222,7 @@ namespace Mail_Checker
             {
                 this.Invoke(d, new object[] { e });
             }
-            catch /*(ObjectDisposedException)*/ { }
+            catch { }
             
         }
 

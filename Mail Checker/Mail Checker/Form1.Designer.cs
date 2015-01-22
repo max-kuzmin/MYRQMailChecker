@@ -34,9 +34,6 @@
             this.button2proxys = new System.Windows.Forms.Button();
             this.button3start = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.Login = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Pass = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.Messages = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -58,12 +55,17 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem1login = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2pass = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.contextMenuStrip1.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1mails
             // 
-            this.button1mails.Location = new System.Drawing.Point(38, 12);
+            this.button1mails.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1mails.Location = new System.Drawing.Point(25, 13);
             this.button1mails.Name = "button1mails";
             this.button1mails.Size = new System.Drawing.Size(149, 30);
             this.button1mails.TabIndex = 0;
@@ -73,7 +75,8 @@
             // 
             // button2proxys
             // 
-            this.button2proxys.Location = new System.Drawing.Point(38, 48);
+            this.button2proxys.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2proxys.Location = new System.Drawing.Point(25, 49);
             this.button2proxys.Name = "button2proxys";
             this.button2proxys.Size = new System.Drawing.Size(149, 30);
             this.button2proxys.TabIndex = 1;
@@ -83,12 +86,14 @@
             // 
             // button3start
             // 
-            this.button3start.Location = new System.Drawing.Point(38, 223);
+            this.button3start.BackColor = System.Drawing.Color.LightGreen;
+            this.button3start.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3start.Location = new System.Drawing.Point(25, 242);
             this.button3start.Name = "button3start";
             this.button3start.Size = new System.Drawing.Size(149, 50);
             this.button3start.TabIndex = 2;
             this.button3start.Text = "Старт";
-            this.button3start.UseVisualStyleBackColor = true;
+            this.button3start.UseVisualStyleBackColor = false;
             this.button3start.Click += new System.EventHandler(this.button3start_Click);
             // 
             // listView1
@@ -96,41 +101,23 @@
             this.listView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.Login,
-            this.Pass,
-            this.Messages});
+            this.listView1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
             this.listView1.Location = new System.Drawing.Point(228, 12);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(408, 429);
+            this.listView1.Size = new System.Drawing.Size(342, 469);
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
             this.listView1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listView1_MouseClick);
             // 
-            // Login
-            // 
-            this.Login.Text = "Логин";
-            this.Login.Width = 159;
-            // 
-            // Pass
-            // 
-            this.Pass.Text = "Пароль";
-            this.Pass.Width = 153;
-            // 
-            // Messages
-            // 
-            this.Messages.Text = "Сообщения";
-            this.Messages.Width = 87;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(35, 295);
+            this.label1.Location = new System.Drawing.Point(23, 11);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(60, 17);
             this.label1.TabIndex = 4;
@@ -139,7 +126,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(35, 348);
+            this.label2.Location = new System.Drawing.Point(23, 64);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(55, 17);
             this.label2.TabIndex = 5;
@@ -148,7 +135,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(35, 420);
+            this.label3.Location = new System.Drawing.Point(23, 131);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(60, 17);
             this.label3.TabIndex = 6;
@@ -157,7 +144,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(35, 312);
+            this.label4.Location = new System.Drawing.Point(23, 28);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(65, 17);
             this.label4.TabIndex = 7;
@@ -166,7 +153,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(35, 365);
+            this.label5.Location = new System.Drawing.Point(23, 81);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 17);
             this.label5.TabIndex = 8;
@@ -175,7 +162,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(35, 382);
+            this.label6.Location = new System.Drawing.Point(23, 98);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(69, 17);
             this.label6.TabIndex = 9;
@@ -184,7 +171,7 @@
             // label7threads
             // 
             this.label7threads.AutoSize = true;
-            this.label7threads.Location = new System.Drawing.Point(105, 420);
+            this.label7threads.Location = new System.Drawing.Point(93, 131);
             this.label7threads.Name = "label7threads";
             this.label7threads.Size = new System.Drawing.Size(16, 17);
             this.label7threads.TabIndex = 10;
@@ -193,7 +180,7 @@
             // label8valid
             // 
             this.label8valid.AutoSize = true;
-            this.label8valid.Location = new System.Drawing.Point(105, 365);
+            this.label8valid.Location = new System.Drawing.Point(93, 81);
             this.label8valid.Name = "label8valid";
             this.label8valid.Size = new System.Drawing.Size(16, 17);
             this.label8valid.TabIndex = 11;
@@ -202,7 +189,7 @@
             // label9novalid
             // 
             this.label9novalid.AutoSize = true;
-            this.label9novalid.Location = new System.Drawing.Point(105, 382);
+            this.label9novalid.Location = new System.Drawing.Point(93, 98);
             this.label9novalid.Name = "label9novalid";
             this.label9novalid.Size = new System.Drawing.Size(16, 17);
             this.label9novalid.TabIndex = 12;
@@ -211,7 +198,7 @@
             // label10mails
             // 
             this.label10mails.AutoSize = true;
-            this.label10mails.Location = new System.Drawing.Point(105, 348);
+            this.label10mails.Location = new System.Drawing.Point(93, 64);
             this.label10mails.Name = "label10mails";
             this.label10mails.Size = new System.Drawing.Size(16, 17);
             this.label10mails.TabIndex = 13;
@@ -220,7 +207,7 @@
             // label11proxys
             // 
             this.label11proxys.AutoSize = true;
-            this.label11proxys.Location = new System.Drawing.Point(105, 295);
+            this.label11proxys.Location = new System.Drawing.Point(93, 11);
             this.label11proxys.Name = "label11proxys";
             this.label11proxys.Size = new System.Drawing.Size(16, 17);
             this.label11proxys.TabIndex = 14;
@@ -229,7 +216,7 @@
             // label12errors
             // 
             this.label12errors.AutoSize = true;
-            this.label12errors.Location = new System.Drawing.Point(105, 312);
+            this.label12errors.Location = new System.Drawing.Point(93, 28);
             this.label12errors.Name = "label12errors";
             this.label12errors.Size = new System.Drawing.Size(16, 17);
             this.label12errors.TabIndex = 15;
@@ -237,7 +224,8 @@
             // 
             // textBox1threads
             // 
-            this.textBox1threads.Location = new System.Drawing.Point(108, 93);
+            this.textBox1threads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox1threads.Location = new System.Drawing.Point(95, 94);
             this.textBox1threads.Name = "textBox1threads";
             this.textBox1threads.Size = new System.Drawing.Size(79, 22);
             this.textBox1threads.TabIndex = 0;
@@ -246,7 +234,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(38, 98);
+            this.label7.Location = new System.Drawing.Point(25, 99);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(60, 17);
             this.label7.TabIndex = 16;
@@ -255,7 +243,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(36, 123);
+            this.label8.Location = new System.Drawing.Point(23, 124);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(68, 17);
             this.label8.TabIndex = 17;
@@ -263,7 +251,8 @@
             // 
             // textBox2timeout
             // 
-            this.textBox2timeout.Location = new System.Drawing.Point(108, 118);
+            this.textBox2timeout.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox2timeout.Location = new System.Drawing.Point(95, 119);
             this.textBox2timeout.Name = "textBox2timeout";
             this.textBox2timeout.Size = new System.Drawing.Size(79, 22);
             this.textBox2timeout.TabIndex = 18;
@@ -272,19 +261,21 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(80, 152);
+            this.label9.Location = new System.Drawing.Point(67, 153);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(60, 17);
+            this.label9.Size = new System.Drawing.Size(70, 17);
             this.label9.TabIndex = 19;
-            this.label9.Text = "Запрос:";
+            this.label9.Text = "Запросы:";
             // 
             // textBox1query
             // 
-            this.textBox1query.Location = new System.Drawing.Point(38, 177);
+            this.textBox1query.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.textBox1query.Location = new System.Drawing.Point(25, 178);
+            this.textBox1query.Multiline = true;
             this.textBox1query.Name = "textBox1query";
-            this.textBox1query.Size = new System.Drawing.Size(149, 22);
+            this.textBox1query.Size = new System.Drawing.Size(149, 58);
             this.textBox1query.TabIndex = 20;
-            this.textBox1query.Text = "@somesite.com";
+            this.textBox1query.Text = "@somesite1.com\r\n@somesite2.com";
             // 
             // contextMenuStrip1
             // 
@@ -308,42 +299,64 @@
             this.toolStripMenuItem2pass.Text = "Копировать пароль";
             this.toolStripMenuItem2pass.Click += new System.EventHandler(this.toolStripMenuItem2pass_Click);
             // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.label4);
+            this.panel1.Controls.Add(this.label5);
+            this.panel1.Controls.Add(this.label6);
+            this.panel1.Controls.Add(this.label7threads);
+            this.panel1.Controls.Add(this.label12errors);
+            this.panel1.Controls.Add(this.label8valid);
+            this.panel1.Controls.Add(this.label11proxys);
+            this.panel1.Controls.Add(this.label9novalid);
+            this.panel1.Controls.Add(this.label10mails);
+            this.panel1.Location = new System.Drawing.Point(13, 322);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(194, 159);
+            this.panel1.TabIndex = 21;
+            // 
+            // panel2
+            // 
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.textBox1query);
+            this.panel2.Controls.Add(this.button1mails);
+            this.panel2.Controls.Add(this.button2proxys);
+            this.panel2.Controls.Add(this.label9);
+            this.panel2.Controls.Add(this.button3start);
+            this.panel2.Controls.Add(this.textBox2timeout);
+            this.panel2.Controls.Add(this.textBox1threads);
+            this.panel2.Controls.Add(this.label8);
+            this.panel2.Controls.Add(this.label7);
+            this.panel2.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.panel2.Location = new System.Drawing.Point(13, 12);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(194, 304);
+            this.panel2.TabIndex = 22;
+            // 
             // Form1main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(648, 453);
-            this.Controls.Add(this.textBox1query);
-            this.Controls.Add(this.label9);
-            this.Controls.Add(this.textBox2timeout);
-            this.Controls.Add(this.label8);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.textBox1threads);
-            this.Controls.Add(this.label12errors);
-            this.Controls.Add(this.label11proxys);
-            this.Controls.Add(this.label10mails);
-            this.Controls.Add(this.label9novalid);
-            this.Controls.Add(this.label8valid);
-            this.Controls.Add(this.label7threads);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
+            this.ClientSize = new System.Drawing.Size(582, 493);
             this.Controls.Add(this.listView1);
-            this.Controls.Add(this.button3start);
-            this.Controls.Add(this.button2proxys);
-            this.Controls.Add(this.button1mails);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel2);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(600, 500);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Bad Mail.ru Checker 0.8";
+            this.Text = "Bad Mail.ru Checker 0.9";
             this.contextMenuStrip1.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -353,9 +366,6 @@
         private System.Windows.Forms.Button button2proxys;
         private System.Windows.Forms.Button button3start;
         private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ColumnHeader Login;
-        private System.Windows.Forms.ColumnHeader Pass;
-        private System.Windows.Forms.ColumnHeader Messages;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
@@ -377,6 +387,8 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1login;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2pass;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel2;
     }
 }
 

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Chilkat;
 using System.Net;
 
 
@@ -17,7 +16,7 @@ namespace Mail_Checker
     {
         string[] mailElements;
         string [] domainLogin;
-        string cookies = "";
+        //string cookies = "";
 
         WebProxy myProxy = new WebProxy("109.175.8.45:8080");
             
@@ -43,7 +42,11 @@ namespace Mail_Checker
 
 
             //this.webBrowser1.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.webBrowser1_Navigated);
-            webBrowser1.Navigate("auth.mail.ru/cgi-bin/auth?from=splash&Domain="+domainLogin[1]+"&Login="+domainLogin[0]+"&Password=" + mailElements[1]);
+            if (domainLogin[1] == "mail.ru" || domainLogin[1] == "inbox.ru" || domainLogin[1] == "bk.ru" || domainLogin[1] == "list.ru")
+            {
+                webBrowser1.Navigate("auth.mail.ru/cgi-bin/auth?from=splash&Domain=" + domainLogin[1] + "&Login=" + domainLogin[0] + "&Password=" + mailElements[1]);
+            }
+
             //this.webBrowser1.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser1_Navigating);
 
         }
