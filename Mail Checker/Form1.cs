@@ -93,8 +93,9 @@ namespace Mail_Checker
                 listView1.Items.Clear();
                 listView1.Columns.Clear();
 
-                this.Width = 260 + (querys.Count+2) * 150;
-                listView1.Width = (querys.Count+2) * 150+5;
+                this.Width = 270 + (querys.Count+2) * 150;
+                this.MinimumSize = new Size(this.Width, this.Height);
+                listView1.Width = (querys.Count+2) * 150+15;
                 listView1.Columns.Add("Login", "Логин", 150);
                 listView1.Columns.Add("Pass", "Пароль", 150);
                 for (int i = 0; i < querys.Count; i++)
