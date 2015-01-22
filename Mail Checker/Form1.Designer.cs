@@ -229,7 +229,7 @@
             this.textBox1threads.Name = "textBox1threads";
             this.textBox1threads.Size = new System.Drawing.Size(79, 22);
             this.textBox1threads.TabIndex = 0;
-            this.textBox1threads.Text = "100";
+            this.textBox1threads.Text = "500";
             // 
             // label7
             // 
@@ -350,7 +350,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Bad Mail.ru Checker 0.9";
+            this.Text = "Bad Mail.ru Checker 0.9b";
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
