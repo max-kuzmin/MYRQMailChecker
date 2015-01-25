@@ -229,7 +229,7 @@
             this.textBox1threads.Name = "textBox1threads";
             this.textBox1threads.Size = new System.Drawing.Size(79, 22);
             this.textBox1threads.TabIndex = 0;
-            this.textBox1threads.Text = "500";
+            this.textBox1threads.Text = "300";
             // 
             // label7
             // 
