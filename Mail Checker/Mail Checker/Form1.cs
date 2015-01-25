@@ -24,6 +24,7 @@ namespace Mail_Checker
 
             d += SetState;
 
+            //new MailBrowser(new string[] {"zvonok3000@yandex.ru","zababahina" }).Show();
 
         }
 
@@ -195,17 +196,21 @@ namespace Mail_Checker
                 {
 
                     ListViewItem item = new ListViewItem(e.mail.login);
-                    //item.SubItems.Add(e.mail.login);
                     item.SubItems.Add(e.mail.pass);
 
 
                     for (int i = 0; i < e.mail.messages.Length; i++)
                     {
-                        item.SubItems.Add(e.mail.messages[i].ToString());
+                        
                         if (e.mail.messages[i] > 0)
                         {
+                            item.SubItems.Add(e.mail.messages[i].ToString());
                             goodMailsWithMessagesOut[i].WriteLine(e.mail.login + ":" + e.mail.pass + " - " + e.mail.messages[i]);
                             goodMailsWithMessagesOut[i].Flush();
+                        }
+                        else
+                        {
+                            item.SubItems.Add(" ");
                         }
                     }
 
@@ -223,7 +228,10 @@ namespace Mail_Checker
             {
                 this.Invoke(d, new object[] { e });
             }
-            catch { }
+            catch 
+            {
+                Application.Exit();
+            }
             
         }
 

@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using System.Net;
+using System.Text;
+using System.IO;
 
 
 namespace Mail_Checker
@@ -18,7 +12,7 @@ namespace Mail_Checker
         string [] domainLogin;
         //string cookies = "";
 
-        WebProxy myProxy = new WebProxy("109.175.8.45:8080");
+        //WebProxy myProxy = new WebProxy("109.175.8.45:8080");
             
 
         public MailBrowser(string[] mailElements)
@@ -45,6 +39,16 @@ namespace Mail_Checker
             if (domainLogin[1] == "mail.ru" || domainLogin[1] == "inbox.ru" || domainLogin[1] == "bk.ru" || domainLogin[1] == "list.ru")
             {
                 webBrowser1.Navigate("auth.mail.ru/cgi-bin/auth?from=splash&Domain=" + domainLogin[1] + "&Login=" + domainLogin[0] + "&Password=" + mailElements[1]);
+            }
+            else if (domainLogin[1] == "yandex.ru")
+            {
+
+                UTF8Encoding encoding = new UTF8Encoding();
+                string requestPayload = "login=" + mailElements[0] + "&passwd=" + mailElements[1] + "&retpath=https://mail.yandex.ru/";
+                webBrowser1.ScriptErrorsSuppressed = false;
+                webBrowser1.Navigate("passport.yandex.ru/passport?mode=auth&from=mail&origin=hostroot_new_l_enter&retpath=https://mail.yandex.ru/", "", encoding.GetBytes(requestPayload), "");
+
+
             }
 
             //this.webBrowser1.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.webBrowser1_Navigating);
