@@ -12,6 +12,8 @@ namespace Mail_Checker
         noError
     }
 
+    
+
     struct MailInfo
     {
         public MailInfo(string login, string pass, int[] messages)

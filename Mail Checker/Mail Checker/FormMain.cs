@@ -24,7 +24,10 @@ namespace Mail_Checker
 
             d += SetState;
 
-            //new MailBrowser(new string[] {"zvonok3000@yandex.ru","zababahina" }).Show();
+            //new MailBrowser(new string[] { "zin_1995@bk.ru", "1q2w3e4r5t" }).Show();
+            //new MailBrowser(new string[] { "zvukopedia@yandex.ru", "sqrt225" }).Show();
+            //new MailBrowser(new string[] { "kosh-udar-tru@rambler.ru", "krovosos1996" }).Show();
+            //new MailBrowser(new string[] { "yura426@qip.ru", "bar123sik" }).Show();
 
         }
 
@@ -205,7 +208,10 @@ namespace Mail_Checker
                         if (e.mail.messages[i] > 0)
                         {
                             item.SubItems.Add(e.mail.messages[i].ToString());
-                            goodMailsWithMessagesOut[i].WriteLine(e.mail.login + ":" + e.mail.pass + " - " + e.mail.messages[i]);
+                            string toWrite = e.mail.login + ":" + e.mail.pass + "                                                                                                  ";
+                            toWrite = toWrite.Remove(50);
+                            toWrite += " - " + e.mail.messages[i];
+                            goodMailsWithMessagesOut[i].WriteLine(toWrite);
                             goodMailsWithMessagesOut[i].Flush();
                         }
                         else
