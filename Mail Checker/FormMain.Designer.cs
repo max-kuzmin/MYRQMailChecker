@@ -350,7 +350,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Bad Mail.ru Checker 0.9b";
+            this.Text = "Worst MYRQ Checker r11";
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

