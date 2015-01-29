@@ -56,7 +56,6 @@ namespace Mail_Checker
             this.threads = threads;
             this.timeout = timeout;
 
-            
         }
 
 
@@ -155,7 +154,6 @@ namespace Mail_Checker
                 }
                 else if (error == CheckErrors.anotherError)
                 {
-                    errors++;
                     mails.Push(mailLine);
                     proxys.Enqueue(proxyLine);
                 }
@@ -345,7 +343,7 @@ namespace Mail_Checker
 
                 if (res1str.Contains("Ошибка проверки контрольных символов"))
                 {
-                    error = CheckErrors.anotherError;
+                    error = CheckErrors.mailError;
                     return;
                 }
                 else if (res1str.Contains("Ваш аккаунт временно заблокирован") || res1str.Contains("Неправильная пара логин-пароль"))
@@ -429,7 +427,7 @@ namespace Mail_Checker
             imap.Ssl = true;
             imap.Port = 993;
             imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
-
+            
 
             imap.HttpProxyHostname = proxyElements[0];
             imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
