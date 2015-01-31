@@ -346,7 +346,7 @@ namespace Mail_Checker
                     error = CheckErrors.mailError;
                     return;
                 }
-                else if (res1str.Contains("Ваш аккаунт временно заблокирован") || res1str.Contains("Неправильная пара логин-пароль"))
+                else if (res1str.Contains("Ваш аккаунт временно заблокирован") || res1str.Contains("Неправильная пара логин-пароль") || res1str.Contains("записи с таким логином не существует"))
                 {
                     error = CheckErrors.mailError;
                     return;
@@ -446,42 +446,45 @@ namespace Mail_Checker
             Mailboxes mboxes = null;
             if (success == true)
             {
-                mboxes = imap.ListMailboxes("", "");
+                if (querys.Length > 0)
+                {
+                    mboxes = imap.ListMailboxes("", "");
+
+
+                    if (mboxes != null)
+                    {
+                        for (int i = 0; i < mboxes.Count; i++)
+                        {
+                            string mboxName = mboxes.GetName(i);
+                            if (mboxName == "DraftBox" || mboxName == "SentBox" || mboxName == "Spam" || mboxName == "Draft" || mboxName == "Sent") continue;
+                            success = imap.SelectMailbox(mboxName);
+                            if (!success)
+                            {
+                                error = CheckErrors.proxyError;
+                                break;
+                            }
+
+                            for (int k = 0; k < querys.Length; k++)
+                            {
+                                MessageSet messageSet = imap.Search("FROM " + querys[k], false);
+
+                                if (messageSet != null) messages[k] += messageSet.Count;
+                                else if (error == CheckErrors.noError)
+                                {
+                                    messages[k] = 0;
+                                    error = CheckErrors.proxyError;
+                                    i += mboxes.Count;
+                                    break;
+                                }
+                            }
+
+                        }
+                    }
+                    else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
+                }
             }
             else if (error == CheckErrors.noError && imap.LastResponse == "") error = CheckErrors.mailError;
             else if (error == CheckErrors.noError) error = CheckErrors.mailError;
-
-            if (mboxes != null)
-            {
-                for (int i = 0; i < mboxes.Count; i++)
-                {
-                    string mboxName = mboxes.GetName(i);
-                    if (mboxName == "DraftBox" || mboxName == "SentBox" || mboxName == "Spam" || mboxName == "Draft" || mboxName == "Sent") continue;
-                    success = imap.SelectMailbox(mboxName);
-                    if (!success)
-                    {
-                        error = CheckErrors.proxyError;
-                        break;
-                    }
-
-                    for (int k = 0; k < querys.Length; k++)
-                    {
-                        MessageSet messageSet = imap.Search("FROM " + querys[k], false);
-
-                        if (messageSet != null) messages[k] += messageSet.Count;
-                        else if (error == CheckErrors.noError)
-                        {
-                            messages[k] = 0;
-                            error = CheckErrors.proxyError;
-                            i += mboxes.Count;
-                            break;
-                        } 
-                    }
-
-                }
-            }
-            else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
-
 
 
 

@@ -68,7 +68,7 @@ namespace Mail_Checker
             if (button3start.Text == "Старт")
             {
 
-                if (mails == null || proxys == null || textBox1query.Text == "") return;
+                if (mails == null || proxys == null) return;
 
 
                 try
