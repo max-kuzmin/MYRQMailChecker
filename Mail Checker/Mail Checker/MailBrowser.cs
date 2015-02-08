@@ -39,9 +39,9 @@ namespace Mail_Checker
             {
                 
                 UTF8Encoding encoding = new UTF8Encoding();
-                string requestPayload = "back=https://mail.rambler.ru/#/folder/INBOX/&rname=mail&profile.login=" + mailElements[0] + "&profile.domain=" + loginDomain[1] + "&profile.password=" + mailElements[1] + "&button.submit=";
+                string requestPayload = "back=http://mail-pda.rambler.ru/&rname=mail&profile.login=" + mailElements[0] + "&profile.domain=" + loginDomain[1] + "&profile.password=" + mailElements[1] + "&button.submit=";
                 webBrowser1.ScriptErrorsSuppressed = true;
-                webBrowser1.Navigate("https://id.rambler.ru/login?back=http://www.rambler.ru/&rname=main", "", encoding.GetBytes(requestPayload), "Content-Type: application/x-www-form-urlencoded");
+                webBrowser1.Navigate("https://id.rambler.ru/login?back=http://mail-pda.rambler.ru/", "", encoding.GetBytes(requestPayload), "Content-Type: application/x-www-form-urlencoded");
 
             }
             else if (serv == "imap.qip.ru")

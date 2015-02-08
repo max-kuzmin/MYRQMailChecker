@@ -17,6 +17,9 @@ namespace Mail_Checker
         SetStateDelegate d;
         List<StreamWriter> goodMailsWithMessagesOut;
         StreamWriter goodMailsOut;
+        bool started = false;
+        StreamWriter outMailsLasts;
+
 
         public Form1main()
         {
@@ -24,9 +27,9 @@ namespace Mail_Checker
 
             d += SetState;
 
-            //new MailBrowser(new string[] { "zin_1995@bk.ru", "1q2w3e4r5t" }).Show();
-            //new MailBrowser(new string[] { "zvukopedia@yandex.ru", "sqrt225" }).Show();
-            //new MailBrowser(new string[] { "kosh-udar-tru@rambler.ru", "krovosos1996" }).Show();
+            //new MailBrowser(new string[] { "roman_dolzhenov@mail.ru", "oleg2510" }).Show();
+            //new MailBrowser(new string[] { "zhe-st@yandex.ru", "nastya06" }).Show();
+            //new MailBrowser(new string[] { "zemlyak-66@rambler.ru", "091966" }).Show();
             //new MailBrowser(new string[] { "yura426@qip.ru", "bar123sik" }).Show();
 
         }
@@ -40,6 +43,8 @@ namespace Mail_Checker
 
             mails = File.ReadAllLines(dialog.FileName);
 
+            if (checkBox2doubles.Checked) mails = DoubleRemover(mails);
+
             label10mails.Text = mails.Length.ToString();
 
 
@@ -52,10 +57,19 @@ namespace Mail_Checker
             dialog.ShowDialog();
             if (dialog.FileName == "") return;
 
-            proxys = File.ReadAllLines(dialog.FileName);
+            if (!started)
+            {
+                proxys = File.ReadAllLines(dialog.FileName);
+                if (checkBox2doubles.Checked) proxys = DoubleRemover(proxys);
 
-
-            label11proxys.Text = proxys.Length.ToString();
+                label11proxys.Text = proxys.Length.ToString();
+            }
+            else
+            {
+                string[] newProxys = File.ReadAllLines(dialog.FileName);
+                if (checkBox2doubles.Checked) newProxys = DoubleRemover(newProxys);
+                checker.AddProxys(newProxys);
+            }
         }
 
 
@@ -97,16 +111,30 @@ namespace Mail_Checker
                 listView1.Items.Clear();
                 listView1.Columns.Clear();
 
-                this.Width = 270 + (querys.Count) * 75+150*2;
-                this.MinimumSize = new Size(this.Width, this.Height);
-                listView1.Width = (querys.Count) * 75 + 150 * 2 + 15;
-                listView1.Columns.Add("Login", "Логин", 150);
-                listView1.Columns.Add("Pass", "Пароль", 150);
-                for (int i = 0; i < querys.Count; i++)
+                if (querys.Count > 0)
                 {
-                    listView1.Columns.Add(querys[i], querys[i], 75);
-                }
 
+
+                    
+                    this.MinimumSize = new Size(270 + (querys.Count) * 75 + 150 * 2, this.Height);
+                    this.MaximumSize = new Size(0, 0);
+                    this.Width = 270 + (querys.Count) * 75 + 150 * 2;
+                    listView1.Width = (querys.Count) * 75 + 150 * 2 + 15;
+                    listView1.Columns.Add("Login", "Логин", 150);
+                    listView1.Columns.Add("Pass", "Пароль", 150);
+                    for (int i = 0; i < querys.Count; i++)
+                    {
+                        listView1.Columns.Add(querys[i], querys[i], 75);
+                    }
+                }
+                else
+                {
+                    
+                    this.MinimumSize = new Size(240, this.Height);
+                    this.MaximumSize = new Size(240, this.Height);
+                    this.Width = 250;
+                    listView1.Width = 0;
+                }
                 
 
                 Directory.CreateDirectory("results");
@@ -129,40 +157,47 @@ namespace Mail_Checker
                     return;
                 }
 
-                checker = new Checker(mails, proxys, querys.ToArray(), Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
+                checker = new Checker(mails, proxys, querys.ToArray(), Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text), checkBox1proxyCheck.Checked);
 
                 checker.OneCheckDone += ChangeLabels;
 
                 checker.Start();
+                started = true;
 
                 button3start.BackColor = Color.LightSalmon;
                 button3start.Text = "Стоп";
                 textBox1threads.Enabled = false;
                 textBox2timeout.Enabled = false;
                 button1mails.Enabled = false;
-                button2proxys.Enabled = false;
+                //button2proxys.Enabled = false;
                 textBox1query.Enabled = false;
+                checkBox1proxyCheck.Enabled = false;
+                checkBox2doubles.Enabled = false;
             }
             else
             {
                 checker.Stop();
+                started = false;
 
                 button3start.BackColor = Color.LightGreen;
                 button3start.Text = "Старт";
                 textBox1threads.Enabled = true;
                 textBox2timeout.Enabled = true;
                 button1mails.Enabled = true;
-                button2proxys.Enabled = true;
+                //button2proxys.Enabled = true;
                 textBox1query.Enabled = true;
+                checkBox1proxyCheck.Enabled = true;
+                checkBox2doubles.Enabled = true;
 
-                StreamWriter outMailsLasts = File.CreateText("results\\" + outNameTime + " - " + "not_checked_mails" + ".txt");
+                outMailsLasts = File.CreateText("results\\" + outNameTime + " - " + "not_checked_mails" + ".txt");
                 string[] lastsMails = checker.mails.ToArray();
                 for (int i = 0; i < lastsMails.Length; i++)
                 {
                     outMailsLasts.Write(lastsMails[i]+"\n");
                 }
                 outMailsLasts.Flush();
-                outMailsLasts.Close();
+                outMailsLasts.AutoFlush = true;
+                //outMailsLasts.Close();
             }
         }
 
@@ -226,6 +261,11 @@ namespace Mail_Checker
                 }
             }
 
+            if (!started && e.error != CheckErrors.noError)
+            {
+                outMailsLasts.Write(e.mail.login + ":" + e.mail.pass + "\n");
+            }
+
         }
 
         private void ChangeLabels(object sender, CheckEventArgs e)
@@ -276,7 +316,21 @@ namespace Mail_Checker
 
 
 
+        string[] DoubleRemover(string[] input)
+        {
+            List<string> inpList = new List<string>(input);
+            List<string> outpList = new List<string>();
 
+            inpList.Sort();
+            outpList.Add(inpList[0]);
+
+            for (int i = 1; i < inpList.Count; i++)
+            {
+                if (inpList[i] != outpList[outpList.Count - 1]) outpList.Add(inpList[i]);
+            }
+
+            return outpList.ToArray();
+        }
 
 
     }
