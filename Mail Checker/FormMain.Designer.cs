@@ -59,6 +59,8 @@
             this.toolStripMenuItem2pass = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.checkBox2doubles = new System.Windows.Forms.CheckBox();
+            this.checkBox1proxyCheck = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -90,9 +92,9 @@
             // 
             this.button3start.BackColor = System.Drawing.Color.LightGreen;
             this.button3start.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3start.Location = new System.Drawing.Point(25, 242);
+            this.button3start.Location = new System.Drawing.Point(25, 284);
             this.button3start.Name = "button3start";
-            this.button3start.Size = new System.Drawing.Size(149, 50);
+            this.button3start.Size = new System.Drawing.Size(149, 48);
             this.button3start.TabIndex = 2;
             this.button3start.Text = "Старт";
             this.button3start.UseVisualStyleBackColor = false;
@@ -132,25 +134,25 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(23, 11);
+            this.label1.Location = new System.Drawing.Point(22, 11);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(60, 17);
+            this.label1.Size = new System.Drawing.Size(91, 17);
             this.label1.TabIndex = 4;
-            this.label1.Text = "Прокси:";
+            this.label1.Text = "Ост. прокси:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(23, 64);
+            this.label2.Location = new System.Drawing.Point(22, 28);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(55, 17);
+            this.label2.Size = new System.Drawing.Size(86, 17);
             this.label2.TabIndex = 5;
-            this.label2.Text = "Почты:";
+            this.label2.Text = "Ост. почты:";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(23, 131);
+            this.label3.Location = new System.Drawing.Point(22, 96);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(60, 17);
             this.label3.TabIndex = 6;
@@ -159,7 +161,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(23, 28);
+            this.label4.Location = new System.Drawing.Point(22, 79);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(65, 17);
             this.label4.TabIndex = 7;
@@ -168,25 +170,25 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(23, 81);
+            this.label5.Location = new System.Drawing.Point(22, 45);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 17);
+            this.label5.Size = new System.Drawing.Size(79, 17);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Валид:";
+            this.label5.Text = "Валидные:";
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(23, 98);
+            this.label6.Location = new System.Drawing.Point(22, 62);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(69, 17);
+            this.label6.Size = new System.Drawing.Size(95, 17);
             this.label6.TabIndex = 9;
-            this.label6.Text = "Невалид:";
+            this.label6.Text = "Невалидные:";
             // 
             // label7threads
             // 
             this.label7threads.AutoSize = true;
-            this.label7threads.Location = new System.Drawing.Point(93, 131);
+            this.label7threads.Location = new System.Drawing.Point(126, 96);
             this.label7threads.Name = "label7threads";
             this.label7threads.Size = new System.Drawing.Size(16, 17);
             this.label7threads.TabIndex = 10;
@@ -195,7 +197,7 @@
             // label8valid
             // 
             this.label8valid.AutoSize = true;
-            this.label8valid.Location = new System.Drawing.Point(93, 81);
+            this.label8valid.Location = new System.Drawing.Point(126, 45);
             this.label8valid.Name = "label8valid";
             this.label8valid.Size = new System.Drawing.Size(16, 17);
             this.label8valid.TabIndex = 11;
@@ -204,7 +206,7 @@
             // label9novalid
             // 
             this.label9novalid.AutoSize = true;
-            this.label9novalid.Location = new System.Drawing.Point(93, 98);
+            this.label9novalid.Location = new System.Drawing.Point(126, 62);
             this.label9novalid.Name = "label9novalid";
             this.label9novalid.Size = new System.Drawing.Size(16, 17);
             this.label9novalid.TabIndex = 12;
@@ -213,7 +215,7 @@
             // label10mails
             // 
             this.label10mails.AutoSize = true;
-            this.label10mails.Location = new System.Drawing.Point(93, 64);
+            this.label10mails.Location = new System.Drawing.Point(126, 28);
             this.label10mails.Name = "label10mails";
             this.label10mails.Size = new System.Drawing.Size(16, 17);
             this.label10mails.TabIndex = 13;
@@ -222,7 +224,7 @@
             // label11proxys
             // 
             this.label11proxys.AutoSize = true;
-            this.label11proxys.Location = new System.Drawing.Point(93, 11);
+            this.label11proxys.Location = new System.Drawing.Point(126, 11);
             this.label11proxys.Name = "label11proxys";
             this.label11proxys.Size = new System.Drawing.Size(16, 17);
             this.label11proxys.TabIndex = 14;
@@ -231,7 +233,7 @@
             // label12errors
             // 
             this.label12errors.AutoSize = true;
-            this.label12errors.Location = new System.Drawing.Point(93, 28);
+            this.label12errors.Location = new System.Drawing.Point(126, 79);
             this.label12errors.Name = "label12errors";
             this.label12errors.Size = new System.Drawing.Size(16, 17);
             this.label12errors.TabIndex = 15;
@@ -249,7 +251,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(25, 99);
+            this.label7.Location = new System.Drawing.Point(22, 96);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(60, 17);
             this.label7.TabIndex = 16;
@@ -258,7 +260,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(23, 124);
+            this.label8.Location = new System.Drawing.Point(22, 121);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(68, 17);
             this.label8.TabIndex = 17;
@@ -276,7 +278,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(67, 153);
+            this.label9.Location = new System.Drawing.Point(63, 200);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(70, 17);
             this.label9.TabIndex = 19;
@@ -285,7 +287,7 @@
             // textBox1query
             // 
             this.textBox1query.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1query.Location = new System.Drawing.Point(25, 178);
+            this.textBox1query.Location = new System.Drawing.Point(25, 220);
             this.textBox1query.Multiline = true;
             this.textBox1query.Name = "textBox1query";
             this.textBox1query.Size = new System.Drawing.Size(149, 58);
@@ -294,6 +296,7 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1login,
             this.toolStripMenuItem2pass});
@@ -329,14 +332,16 @@
             this.panel1.Controls.Add(this.label11proxys);
             this.panel1.Controls.Add(this.label9novalid);
             this.panel1.Controls.Add(this.label10mails);
-            this.panel1.Location = new System.Drawing.Point(13, 322);
+            this.panel1.Location = new System.Drawing.Point(13, 358);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(194, 159);
+            this.panel1.Size = new System.Drawing.Size(194, 123);
             this.panel1.TabIndex = 21;
             // 
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.checkBox2doubles);
+            this.panel2.Controls.Add(this.checkBox1proxyCheck);
             this.panel2.Controls.Add(this.textBox1query);
             this.panel2.Controls.Add(this.button1mails);
             this.panel2.Controls.Add(this.button2proxys);
@@ -349,8 +354,32 @@
             this.panel2.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.panel2.Location = new System.Drawing.Point(13, 12);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(194, 304);
+            this.panel2.Size = new System.Drawing.Size(194, 340);
             this.panel2.TabIndex = 22;
+            // 
+            // checkBox2doubles
+            // 
+            this.checkBox2doubles.AutoSize = true;
+            this.checkBox2doubles.Checked = true;
+            this.checkBox2doubles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2doubles.Location = new System.Drawing.Point(25, 147);
+            this.checkBox2doubles.Name = "checkBox2doubles";
+            this.checkBox2doubles.Size = new System.Drawing.Size(128, 21);
+            this.checkBox2doubles.TabIndex = 22;
+            this.checkBox2doubles.Text = "Удалять дубли";
+            this.checkBox2doubles.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1proxyCheck
+            // 
+            this.checkBox1proxyCheck.AutoSize = true;
+            this.checkBox1proxyCheck.Checked = true;
+            this.checkBox1proxyCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1proxyCheck.Location = new System.Drawing.Point(25, 173);
+            this.checkBox1proxyCheck.Name = "checkBox1proxyCheck";
+            this.checkBox1proxyCheck.Size = new System.Drawing.Size(127, 21);
+            this.checkBox1proxyCheck.TabIndex = 21;
+            this.checkBox1proxyCheck.Text = "Чекать прокси";
+            this.checkBox1proxyCheck.UseVisualStyleBackColor = true;
             // 
             // Form1main
             // 
@@ -365,7 +394,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Worst MYRQ Checker r12";
+            this.Text = "Worst MYRQ Checker r13";
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -406,6 +435,8 @@
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.CheckBox checkBox2doubles;
+        private System.Windows.Forms.CheckBox checkBox1proxyCheck;
     }
 }
 
