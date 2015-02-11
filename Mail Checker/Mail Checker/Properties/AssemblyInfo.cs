@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("Worst MYRQ Checker r13")]
+[assembly: AssemblyTitle("Worst MYRQ Checker r14")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Worst MYRQ Checker r13")]
+[assembly: AssemblyProduct("Worst MYRQ Checker r14")]
 [assembly: AssemblyCopyright("Copyright © 2015 GsomGsom")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // Можно задать все значения или принять номера сборки и редакции по умолчанию 
 // используя "*", как показано ниже:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("13.0.0.0")]
-[assembly: AssemblyFileVersion("13.0.0.0")]
+[assembly: AssemblyVersion("14.0.0.0")]
+[assembly: AssemblyFileVersion("14.0.0.0")]

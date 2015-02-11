@@ -4,8 +4,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
-
-
+using System.Runtime.InteropServices;
 
 namespace Mail_Checker
 {
@@ -21,9 +20,25 @@ namespace Mail_Checker
         StreamWriter outMailsLasts;
 
 
+
+        [DllImport("urlmon.dll", CharSet = CharSet.Ansi)]
+        private static extern int UrlMkSetSessionOption(int dwOption, string pBuffer, int dwBufferLength, int dwReserved);
+        const int URLMON_OPTION_USERAGENT = 0x10000001;
+
+        public static string UserAgent
+        {
+            set
+            {
+                UrlMkSetSessionOption(URLMON_OPTION_USERAGENT, value, value.Length, 0);
+            }
+        }
+        
+
         public Form1main()
         {
             InitializeComponent();
+
+            UserAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
 
             d += SetState;
 
@@ -171,7 +186,6 @@ namespace Mail_Checker
                 button1mails.Enabled = false;
                 //button2proxys.Enabled = false;
                 textBox1query.Enabled = false;
-                checkBox1proxyCheck.Enabled = false;
                 checkBox2doubles.Enabled = false;
             }
             else
@@ -186,7 +200,6 @@ namespace Mail_Checker
                 button1mails.Enabled = true;
                 //button2proxys.Enabled = true;
                 textBox1query.Enabled = true;
-                checkBox1proxyCheck.Enabled = true;
                 checkBox2doubles.Enabled = true;
 
                 outMailsLasts = File.CreateText("results\\" + outNameTime + " - " + "not_checked_mails" + ".txt");
@@ -314,7 +327,10 @@ namespace Mail_Checker
             }
         }
 
-
+        private void checkBox1proxyCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checker != null) checker.proxyCheck = checkBox1proxyCheck.Checked;
+        }
 
         string[] DoubleRemover(string[] input)
         {

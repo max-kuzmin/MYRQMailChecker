@@ -3,7 +3,7 @@ using System.Net;
 using System.Text;
 using System.IO;
 using System.Threading;
-
+using System.Runtime.InteropServices;
 
 namespace Mail_Checker
 {
@@ -11,7 +11,8 @@ namespace Mail_Checker
     {
         string[] mailElements;
         string[] loginDomain;
-            
+
+
 
         public MailBrowser(string[] mailElements)
         {
@@ -20,11 +21,17 @@ namespace Mail_Checker
             loginDomain = mailElements[0].Split(new char[] { '@' });
             string serv = Checker.DetectDomain(mailElements[0]);
 
+            
+
+
+
+
+
 
             if (serv == "imap.mail.ru")
             {
                 webBrowser1.ScriptErrorsSuppressed = true;
-                webBrowser1.Navigate("auth.mail.ru/cgi-bin/auth?from=splash&Domain=" + loginDomain[1] + "&Login=" + loginDomain[0] + "&Password=" + mailElements[1]);
+                webBrowser1.Navigate("auth.mail.ru/cgi-bin/auth?from=splash&Domain=" + loginDomain[1] + "&Login=" + loginDomain[0] + "&Password=" + mailElements[1], "", new byte[] { }, "");
             }
             else if (serv == "imap.yandex.ru")
             {           
@@ -39,9 +46,9 @@ namespace Mail_Checker
             {
                 
                 UTF8Encoding encoding = new UTF8Encoding();
-                string requestPayload = "back=http://mail-pda.rambler.ru/&rname=mail&profile.login=" + mailElements[0] + "&profile.domain=" + loginDomain[1] + "&profile.password=" + mailElements[1] + "&button.submit=";
+                string requestPayload = "back=https://mail.rambler.ru/#/folder/INBOX/&rname=mail&profile.login=" + mailElements[0] + "&profile.domain=" + loginDomain[1] + "&profile.password=" + mailElements[1] + "&button.submit=";
                 webBrowser1.ScriptErrorsSuppressed = true;
-                webBrowser1.Navigate("https://id.rambler.ru/login?back=http://mail-pda.rambler.ru/", "", encoding.GetBytes(requestPayload), "Content-Type: application/x-www-form-urlencoded");
+                webBrowser1.Navigate("https://id.rambler.ru/login?back=http://www.rambler.ru/&rname=main", "", encoding.GetBytes(requestPayload), "Content-Type: application/x-www-form-urlencoded");
 
             }
             else if (serv == "imap.qip.ru")
@@ -57,8 +64,8 @@ namespace Mail_Checker
             }
 
 
+            
         }
-
 
     }
 }
