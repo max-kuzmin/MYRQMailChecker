@@ -360,8 +360,6 @@
             // checkBox2doubles
             // 
             this.checkBox2doubles.AutoSize = true;
-            this.checkBox2doubles.Checked = true;
-            this.checkBox2doubles.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox2doubles.Location = new System.Drawing.Point(25, 147);
             this.checkBox2doubles.Name = "checkBox2doubles";
             this.checkBox2doubles.Size = new System.Drawing.Size(128, 21);
@@ -372,14 +370,13 @@
             // checkBox1proxyCheck
             // 
             this.checkBox1proxyCheck.AutoSize = true;
-            this.checkBox1proxyCheck.Checked = true;
-            this.checkBox1proxyCheck.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox1proxyCheck.Location = new System.Drawing.Point(25, 173);
             this.checkBox1proxyCheck.Name = "checkBox1proxyCheck";
             this.checkBox1proxyCheck.Size = new System.Drawing.Size(127, 21);
             this.checkBox1proxyCheck.TabIndex = 21;
             this.checkBox1proxyCheck.Text = "Чекать прокси";
             this.checkBox1proxyCheck.UseVisualStyleBackColor = true;
+            this.checkBox1proxyCheck.CheckedChanged += new System.EventHandler(this.checkBox1proxyCheck_CheckedChanged);
             // 
             // Form1main
             // 
@@ -394,7 +391,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Worst MYRQ Checker r13";
+            this.Text = "Worst MYRQ Checker r14";
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
