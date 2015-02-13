@@ -38,7 +38,7 @@ namespace Mail_Checker
         {
             InitializeComponent();
 
-            UserAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+            UserAgent = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)";
 
             d += SetState;
 
@@ -338,11 +338,11 @@ namespace Mail_Checker
             List<string> outpList = new List<string>();
 
             inpList.Sort();
-            outpList.Add(inpList[0]);
+            outpList.Add(inpList[0].Replace(" ", "").Replace(';', ':'));
 
             for (int i = 1; i < inpList.Count; i++)
             {
-                if (inpList[i] != outpList[outpList.Count - 1]) outpList.Add(inpList[i]);
+                if (inpList[i].Replace(" ", "").Replace(';', ':') != outpList[outpList.Count - 1]) outpList.Add(inpList[i].Replace(" ", "").Replace(';', ':'));
             }
 
             return outpList.ToArray();

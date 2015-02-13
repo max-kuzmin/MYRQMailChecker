@@ -246,7 +246,7 @@
             this.textBox1threads.Name = "textBox1threads";
             this.textBox1threads.Size = new System.Drawing.Size(79, 22);
             this.textBox1threads.TabIndex = 0;
-            this.textBox1threads.Text = "300";
+            this.textBox1threads.Text = "500";
             // 
             // label7
             // 
@@ -292,7 +292,6 @@
             this.textBox1query.Name = "textBox1query";
             this.textBox1query.Size = new System.Drawing.Size(149, 58);
             this.textBox1query.TabIndex = 20;
-            this.textBox1query.Text = "@somesite1.com\r\n@somesite2.com";
             // 
             // contextMenuStrip1
             // 
@@ -391,7 +390,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Worst MYRQ Checker r14";
+            this.Text = "Worst MYRQ Checker r15";
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

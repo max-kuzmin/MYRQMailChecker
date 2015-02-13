@@ -59,7 +59,7 @@ namespace Mail_Checker
 
             for (int i = 0; i < proxys.Length; i++)
             {
-                this.proxys.Enqueue(new ProxyStats(proxys[i], 10));
+                this.proxys.Enqueue(new ProxyStats(proxys[i].Replace(" ", ""), 10));
             }
 
 
@@ -129,6 +129,7 @@ namespace Mail_Checker
                 string mailLine;
 
                 if (!mails.TryPop(out mailLine)) continue;
+                mailLine = mailLine.Replace(" ", "");
 
                 string[] mailElements = mailLine.Split(separs);
                 if (mailElements.Length != 2) continue;
@@ -144,6 +145,7 @@ namespace Mail_Checker
                     mails.Push(mailLine);
                     continue;
                 }
+                
                 string[] proxyElements = proxyLine.proxy.Split(separs);
 
                 if (proxyElements.Length != 2 || Regex.Matches(proxyElements[0], "((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)").Count == 0 ||
@@ -236,7 +238,18 @@ namespace Mail_Checker
                 mail.Contains("@pochta.com"))
                 serv = "imap.qip.ru";
 
-            else serv = mail.Split(new char[] { '@' })[1];
+            else
+            {
+                try
+                {
+                    serv = mail.Split(new char[] { '@' })[1];
+                }
+                catch
+                {
+                    serv = "";
+                }
+
+            }
             return serv;
         }
 
@@ -287,6 +300,7 @@ namespace Mail_Checker
                 else if (!res1str.Contains("m.mail.ru/messages"))
                 {
                     error = CheckErrors.proxyError;
+                    Contract.Assert(!res1str.Contains("m.mail.ru/messages"));
                     return;
                 }
 
@@ -392,6 +406,7 @@ namespace Mail_Checker
                 else if (!res1str.Contains("/mail/neo2"))
                 {
                     error = CheckErrors.proxyError;
+                    Contract.Assert(!res1str.Contains("/mail/neo2"));
                     return;
                 }
 

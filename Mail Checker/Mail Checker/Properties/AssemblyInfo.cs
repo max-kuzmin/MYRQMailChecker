@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // Управление общими сведениями о сборке осуществляется с помощью 
 // набора атрибутов. Измените значения этих атрибутов, чтобы изменить сведения,
 // связанные со сборкой.
-[assembly: AssemblyTitle("Worst MYRQ Checker r14")]
+[assembly: AssemblyTitle("Worst MYRQ Checker r15")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Worst MYRQ Checker r14")]
+[assembly: AssemblyProduct("Worst MYRQ Checker r15")]
 [assembly: AssemblyCopyright("Copyright © 2015 GsomGsom")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
