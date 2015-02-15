@@ -22,7 +22,7 @@ namespace Mail_Checker
             string serv = Checker.DetectDomain(mailElements[0]);
 
             
-
+            
 
 
 
