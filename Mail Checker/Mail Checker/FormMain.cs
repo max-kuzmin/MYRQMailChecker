@@ -5,6 +5,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace Mail_Checker
 {
@@ -32,7 +33,12 @@ namespace Mail_Checker
                 UrlMkSetSessionOption(URLMON_OPTION_USERAGENT, value, value.Length, 0);
             }
         }
-        
+
+        public static void DoubleBufferedControl(Control control, bool enable)
+        {
+            var doubleBufferPropertyInfo = control.GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            doubleBufferPropertyInfo.SetValue(control, enable, null);
+        }
 
         public Form1main()
         {
@@ -47,6 +53,7 @@ namespace Mail_Checker
             //new MailBrowser(new string[] { "zemlyak-66@rambler.ru", "091966" }).Show();
             //new MailBrowser(new string[] { "yura426@qip.ru", "bar123sik" }).Show();
 
+            DoubleBufferedControl(listView1, true);
         }
 
         private void button1mails_Click(object sender, EventArgs e)
