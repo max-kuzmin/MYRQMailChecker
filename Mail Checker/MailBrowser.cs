@@ -14,15 +14,19 @@ namespace Mail_Checker
 
 
 
-        public MailBrowser(string[] mailElements)
+        public MailBrowser()
         {
             InitializeComponent();
+            
+        }
+
+
+        public void OpenMail(string[] mailElements)
+        {
             this.mailElements = mailElements;
             loginDomain = mailElements[0].Split(new char[] { '@' });
             string serv = Checker.DetectDomain(mailElements[0]);
 
-            
-            
 
 
 
@@ -34,7 +38,7 @@ namespace Mail_Checker
                 webBrowser1.Navigate("auth.mail.ru/cgi-bin/auth?from=splash&Domain=" + loginDomain[1] + "&Login=" + loginDomain[0] + "&Password=" + mailElements[1], "", new byte[] { }, "");
             }
             else if (serv == "imap.yandex.ru")
-            {           
+            {
                 UTF8Encoding encoding = new UTF8Encoding();
                 string requestPayload = "login=" + mailElements[0] + "&passwd=" + mailElements[1] + "&twoweeks=yes";
                 webBrowser1.ScriptErrorsSuppressed = true;
@@ -44,7 +48,7 @@ namespace Mail_Checker
             }
             else if (serv == "imap.rambler.ru")
             {
-                
+
                 UTF8Encoding encoding = new UTF8Encoding();
                 string requestPayload = "back=https://mail.rambler.ru/#/folder/INBOX/&rname=mail&profile.login=" + mailElements[0] + "&profile.domain=" + loginDomain[1] + "&profile.password=" + mailElements[1] + "&button.submit=";
                 webBrowser1.ScriptErrorsSuppressed = true;
@@ -59,13 +63,15 @@ namespace Mail_Checker
                 string requestPayload = "login=" + loginDomain[0] + "&host=" + loginDomain[1] + "&password=" + mailElements[1];
                 webBrowser1.ScriptErrorsSuppressed = true;
                 webBrowser1.Navigate("https://qip.ru/login?retpath=https://mail.qip.ru/~Inbox;", "", encoding.GetBytes(requestPayload), "Content-Type: application/x-www-form-urlencoded");
-                
+
 
             }
-
-
-            
         }
 
+        private void MailBrowser_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            this.Hide();
+        }
     }
 }

@@ -51,6 +51,7 @@
             this.Name = "MailBrowser";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Mail Browser";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MailBrowser_FormClosing);
             this.ResumeLayout(false);
 
         }

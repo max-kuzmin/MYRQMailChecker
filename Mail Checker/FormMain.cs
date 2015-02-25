@@ -19,7 +19,7 @@ namespace Mail_Checker
         StreamWriter goodMailsOut;
         bool started = false;
         StreamWriter outMailsLasts;
-
+        MailBrowser b;
 
 
         [DllImport("urlmon.dll", CharSet = CharSet.Ansi)]
@@ -43,6 +43,7 @@ namespace Mail_Checker
         public Form1main()
         {
             InitializeComponent();
+            b = new MailBrowser();
 
             UserAgent = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)";
 
@@ -305,16 +306,10 @@ namespace Mail_Checker
         {
             string[] mailElements = { listView1.SelectedItems[0].SubItems[0].Text, listView1.SelectedItems[0].SubItems[1].Text };
 
-            MailBrowser b = new MailBrowser(mailElements);
+            b.OpenMail(mailElements);
             b.Show();
-            this.Enabled = false;
-            b.FormClosed += b_FormClosed;
         }
 
-        void b_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            this.Enabled = true;
-        }
 
         private void toolStripMenuItem1login_Click(object sender, EventArgs e)
         {
