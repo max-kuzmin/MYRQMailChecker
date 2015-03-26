@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Mail_Checker</RootNamespace>
-    <AssemblyName>Worst MYRQ Checker r15</AssemblyName>
+    <AssemblyName>Worst MYRQ Checker r16</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -74,6 +74,12 @@
   <ItemGroup>
     <Compile Include="Checker.cs" />
     <Compile Include="CheckEventArgs.cs" />
+    <Compile Include="FormProxy.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormProxy.Designer.cs">
+      <DependentUpon>FormProxy.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +94,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProxyChecker.cs" />
+    <EmbeddedResource Include="FormProxy.resx">
+      <DependentUpon>FormProxy.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>

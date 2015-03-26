@@ -4,15 +4,9 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using xNet.Net;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using Chilkat;
+using System.IO;
 
-//----удаление дубликатов
-//-----отключение проверки прокси
-//-------сохранение остатка полностью
-//-----исправлен чек мейл ру и рамблера и яндекса и квипа
-//-------интерфейс при обычном чеке на валид
-//-----возможность самому подгружать прокси
 
 //исправить яндекс чек писем
 //для яндекса и мейла фразы ошибок другие поставить, мультиязычные
@@ -45,7 +39,6 @@ namespace Mail_Checker
         public bool proxyCheck = true;
         List<Thread> threadsList;
 
-
         int workingThreads = 0, errors = 0, valid = 0, novalid = 0;
         int threads, timeout;
         bool started = false;
@@ -66,7 +59,6 @@ namespace Mail_Checker
             this.querys = querys;
             this.threads = threads;
             this.timeout = timeout;
-
         }
 
         public void AddProxys(string[] newProxys)
@@ -300,7 +292,6 @@ namespace Mail_Checker
                 else if (!res1str.Contains("m.mail.ru/messages"))
                 {
                     error = CheckErrors.proxyError;
-                    Contract.Assert(!res1str.Contains("m.mail.ru/messages"));
                     return;
                 }
 
@@ -406,7 +397,6 @@ namespace Mail_Checker
                 else if (!res1str.Contains("/mail/neo2"))
                 {
                     error = CheckErrors.proxyError;
-                    Contract.Assert(!res1str.Contains("/mail/neo2"));
                     return;
                 }
 
@@ -499,8 +489,7 @@ namespace Mail_Checker
 
                 if (!success)
                 {
-                    if (imap.LastResponse.Contains("Incorrect username") || imap.LastResponse.Contains("Account blocked")) error = CheckErrors.mailError;
-                    else if (imap.LastResponse == "") error = CheckErrors.proxyError;
+                    if (imap.LastResponse.Contains("Incorrect username") || imap.LastResponse.Contains("Account blocked")) error = CheckErrors.mailError; 
                     else error = CheckErrors.proxyError;
                 }
             }

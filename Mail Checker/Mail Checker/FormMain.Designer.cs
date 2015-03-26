@@ -59,6 +59,7 @@
             this.toolStripMenuItem2pass = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.button1ProxyChecker = new System.Windows.Forms.Button();
             this.checkBox2doubles = new System.Windows.Forms.CheckBox();
             this.checkBox1proxyCheck = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
@@ -68,33 +69,35 @@
             // 
             // button1mails
             // 
+            this.button1mails.BackColor = System.Drawing.SystemColors.ControlLight;
             this.button1mails.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1mails.Location = new System.Drawing.Point(25, 13);
             this.button1mails.Name = "button1mails";
             this.button1mails.Size = new System.Drawing.Size(149, 30);
             this.button1mails.TabIndex = 0;
             this.button1mails.Text = "Загрузить почты";
-            this.button1mails.UseVisualStyleBackColor = true;
+            this.button1mails.UseVisualStyleBackColor = false;
             this.button1mails.Click += new System.EventHandler(this.button1mails_Click);
             // 
             // button2proxys
             // 
+            this.button2proxys.BackColor = System.Drawing.SystemColors.ControlLight;
             this.button2proxys.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2proxys.Location = new System.Drawing.Point(25, 49);
             this.button2proxys.Name = "button2proxys";
             this.button2proxys.Size = new System.Drawing.Size(149, 30);
             this.button2proxys.TabIndex = 1;
             this.button2proxys.Text = "Загрузить прокси";
-            this.button2proxys.UseVisualStyleBackColor = true;
+            this.button2proxys.UseVisualStyleBackColor = false;
             this.button2proxys.Click += new System.EventHandler(this.button2proxys_Click);
             // 
             // button3start
             // 
             this.button3start.BackColor = System.Drawing.Color.LightGreen;
             this.button3start.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button3start.Location = new System.Drawing.Point(25, 284);
+            this.button3start.Location = new System.Drawing.Point(25, 311);
             this.button3start.Name = "button3start";
-            this.button3start.Size = new System.Drawing.Size(149, 48);
+            this.button3start.Size = new System.Drawing.Size(149, 38);
             this.button3start.TabIndex = 2;
             this.button3start.Text = "Старт";
             this.button3start.UseVisualStyleBackColor = false;
@@ -114,7 +117,7 @@
             this.listView1.Location = new System.Drawing.Point(228, 12);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(342, 469);
+            this.listView1.Size = new System.Drawing.Size(342, 488);
             this.listView1.TabIndex = 3;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -124,12 +127,12 @@
             // columnHeader1
             // 
             this.columnHeader1.Text = "Логин";
-            this.columnHeader1.Width = 153;
+            this.columnHeader1.Width = 156;
             // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "Пароль";
-            this.columnHeader2.Width = 143;
+            this.columnHeader2.Width = 171;
             // 
             // label1
             // 
@@ -242,7 +245,7 @@
             // textBox1threads
             // 
             this.textBox1threads.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1threads.Location = new System.Drawing.Point(95, 94);
+            this.textBox1threads.Location = new System.Drawing.Point(95, 121);
             this.textBox1threads.Name = "textBox1threads";
             this.textBox1threads.Size = new System.Drawing.Size(79, 22);
             this.textBox1threads.TabIndex = 0;
@@ -251,7 +254,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(22, 96);
+            this.label7.Location = new System.Drawing.Point(22, 123);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(60, 17);
             this.label7.TabIndex = 16;
@@ -260,7 +263,7 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(22, 121);
+            this.label8.Location = new System.Drawing.Point(22, 148);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(68, 17);
             this.label8.TabIndex = 17;
@@ -269,7 +272,7 @@
             // textBox2timeout
             // 
             this.textBox2timeout.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox2timeout.Location = new System.Drawing.Point(95, 119);
+            this.textBox2timeout.Location = new System.Drawing.Point(95, 146);
             this.textBox2timeout.Name = "textBox2timeout";
             this.textBox2timeout.Size = new System.Drawing.Size(79, 22);
             this.textBox2timeout.TabIndex = 18;
@@ -278,7 +281,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(63, 200);
+            this.label9.Location = new System.Drawing.Point(63, 227);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(70, 17);
             this.label9.TabIndex = 19;
@@ -287,11 +290,12 @@
             // textBox1query
             // 
             this.textBox1query.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textBox1query.Location = new System.Drawing.Point(25, 220);
+            this.textBox1query.Location = new System.Drawing.Point(25, 247);
             this.textBox1query.Multiline = true;
             this.textBox1query.Name = "textBox1query";
             this.textBox1query.Size = new System.Drawing.Size(149, 58);
             this.textBox1query.TabIndex = 20;
+            this.textBox1query.Text = "No-reply@ulmart.ru\r\ninfo@sclub.ru";
             // 
             // contextMenuStrip1
             // 
@@ -331,7 +335,7 @@
             this.panel1.Controls.Add(this.label11proxys);
             this.panel1.Controls.Add(this.label9novalid);
             this.panel1.Controls.Add(this.label10mails);
-            this.panel1.Location = new System.Drawing.Point(13, 358);
+            this.panel1.Location = new System.Drawing.Point(13, 377);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(194, 123);
             this.panel1.TabIndex = 21;
@@ -339,6 +343,7 @@
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.button1ProxyChecker);
             this.panel2.Controls.Add(this.checkBox2doubles);
             this.panel2.Controls.Add(this.checkBox1proxyCheck);
             this.panel2.Controls.Add(this.textBox1query);
@@ -353,13 +358,25 @@
             this.panel2.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.panel2.Location = new System.Drawing.Point(13, 12);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(194, 340);
+            this.panel2.Size = new System.Drawing.Size(194, 359);
             this.panel2.TabIndex = 22;
+            // 
+            // button1ProxyChecker
+            // 
+            this.button1ProxyChecker.BackColor = System.Drawing.SystemColors.Control;
+            this.button1ProxyChecker.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1ProxyChecker.Location = new System.Drawing.Point(25, 85);
+            this.button1ProxyChecker.Name = "button1ProxyChecker";
+            this.button1ProxyChecker.Size = new System.Drawing.Size(149, 30);
+            this.button1ProxyChecker.TabIndex = 23;
+            this.button1ProxyChecker.Text = "Прокси чекер";
+            this.button1ProxyChecker.UseVisualStyleBackColor = false;
+            this.button1ProxyChecker.Click += new System.EventHandler(this.button1ProxyChecker_Click);
             // 
             // checkBox2doubles
             // 
             this.checkBox2doubles.AutoSize = true;
-            this.checkBox2doubles.Location = new System.Drawing.Point(25, 147);
+            this.checkBox2doubles.Location = new System.Drawing.Point(25, 174);
             this.checkBox2doubles.Name = "checkBox2doubles";
             this.checkBox2doubles.Size = new System.Drawing.Size(128, 21);
             this.checkBox2doubles.TabIndex = 22;
@@ -369,7 +386,7 @@
             // checkBox1proxyCheck
             // 
             this.checkBox1proxyCheck.AutoSize = true;
-            this.checkBox1proxyCheck.Location = new System.Drawing.Point(25, 173);
+            this.checkBox1proxyCheck.Location = new System.Drawing.Point(25, 200);
             this.checkBox1proxyCheck.Name = "checkBox1proxyCheck";
             this.checkBox1proxyCheck.Size = new System.Drawing.Size(127, 21);
             this.checkBox1proxyCheck.TabIndex = 21;
@@ -381,7 +398,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(582, 493);
+            this.ClientSize = new System.Drawing.Size(582, 512);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
@@ -391,7 +408,8 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Worst MYRQ Checker r15";
+            this.Text = "Worst MYRQ Checker r16";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1main_FormClosed);
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -434,6 +452,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.CheckBox checkBox2doubles;
         private System.Windows.Forms.CheckBox checkBox1proxyCheck;
+        private System.Windows.Forms.Button button1ProxyChecker;
     }
 }
 
