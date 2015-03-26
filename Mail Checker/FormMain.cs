@@ -334,7 +334,7 @@ namespace Mail_Checker
             if (checker != null) checker.proxyCheck = checkBox1proxyCheck.Checked;
         }
 
-        string[] DoubleRemover(string[] input)
+        public static string[] DoubleRemover(string[] input)
         {
             List<string> inpList = new List<string>(input);
             List<string> outpList = new List<string>();
@@ -348,6 +348,21 @@ namespace Mail_Checker
             }
 
             return outpList.ToArray();
+        }
+
+        private void Form1main_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Environment.Exit(0);
+        }
+
+        private void button1ProxyChecker_Click(object sender, EventArgs e)
+        {
+            button1ProxyChecker.Enabled = false;
+
+            FormProxy form1 = new FormProxy(Convert.ToInt32(textBox1threads.Text));
+            form1.Show();
+            form1.FormClosing += (evSender, args) => button1ProxyChecker.Enabled = true; ;
+            
         }
 
 
