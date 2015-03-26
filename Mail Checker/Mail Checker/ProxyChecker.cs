@@ -56,38 +56,51 @@ namespace Mail_Checker
             }
         }
 
-
+        Random r = new Random();
         private void Check()
         {
+            Thread.Sleep(r.Next(10, threadsMax*30));
             threads++;
             while (proxys.Count>0 && !stopped)
             {
 
                 string oneProxy = "";
-                if (!proxys.TryDequeue(out oneProxy)) continue;
-
-                HttpRequest req = new HttpRequest();
-                req.ConnectTimeout = 7000;
-                req.ReadWriteTimeout = 7000;
-                req.Proxy = ProxyClient.Parse(ProxyType.Http, oneProxy);
-
-                HttpResponse res = null;
-                try
+                if (!proxys.TryDequeue(out oneProxy))
                 {
-                    res = req.Get("http://www.yandex.ru/m/");
+                    Thread.Sleep(r.Next(10, threadsMax));
+                    continue;
+                }
 
-                    if (res != null && res.ToString().Contains("Яндекс"))
+                using (HttpRequest req = new HttpRequest())
+                {
+                    req.ConnectTimeout = 7000;
+                    req.ReadWriteTimeout = 7000;
+                    try
                     {
-                        goods++;
-                        writer.WriteAsync(oneProxy + "\r\n");
+                        req.Proxy = ProxyClient.Parse(ProxyType.Http, oneProxy);
                     }
-                    else errors++;
-                }
-                catch
-                {
-                    errors++;
-                }
+                    catch 
+                    { 
+                        continue; 
+                    }
 
+                    HttpResponse res = null;
+                    try
+                    {
+                        res = req.Get("http://www.yandex.ru/m/");
+
+                        if (res != null && res.ToString().Contains("Яндекс"))
+                        {
+                            goods++;
+                            writer.WriteAsync(oneProxy + "\r\n");
+                        }
+                        else errors++;
+                    }
+                    catch
+                    {
+                        errors++;
+                    }
+                }
                  if (CheckComplete!=null) CheckComplete(this, new EventArgs());
 
             }
