@@ -134,17 +134,18 @@ namespace Mail_Checker
                 listView1.Items.Clear();
                 listView1.Columns.Clear();
 
+                Graphics dpi = this.CreateGraphics();
                 if (querys.Count > 0)
                 {
 
 
-                    
-                    this.MinimumSize = new Size(270 + (querys.Count) * 75 + 150 * 2, this.Height);
+
+                    this.MinimumSize = new Size((int)((270 + (querys.Count) * 75 + 150 * 2) * dpi.DpiX / 120), this.Height);
                     this.MaximumSize = new Size(0, 0);
-                    this.Width = 270 + (querys.Count) * 75 + 150 * 2;
-                    listView1.Width = (querys.Count) * 75 + 150 * 2 + 15;
-                    listView1.Columns.Add("Login", "Логин", 150);
-                    listView1.Columns.Add("Pass", "Пароль", 150);
+                    this.Width = (int)((270 + (querys.Count) * 75 + 150 * 2)*dpi.DpiX/120);
+                    listView1.Width = (int)(((querys.Count) * 75 + 150 * 2 + 15) * dpi.DpiX / 120);
+                    listView1.Columns.Add("Login", "Логин", (int)(150 * dpi.DpiX / 120));
+                    listView1.Columns.Add("Pass", "Пароль", (int)(150 * dpi.DpiX / 120));
                     for (int i = 0; i < querys.Count; i++)
                     {
                         listView1.Columns.Add(querys[i], querys[i], 75);
@@ -152,10 +153,10 @@ namespace Mail_Checker
                 }
                 else
                 {
-                    
-                    this.MinimumSize = new Size(240, this.Height);
-                    this.MaximumSize = new Size(240, this.Height);
-                    this.Width = 250;
+
+                    this.MinimumSize = new Size((int)(240 * dpi.DpiX / 120), this.Height);
+                    this.MaximumSize = new Size((int)(240 * dpi.DpiX / 120), this.Height);
+                    this.Width = (int)(250* dpi.DpiX / 120);
                     listView1.Width = 0;
                 }
                 
