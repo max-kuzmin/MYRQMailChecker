@@ -6,10 +6,9 @@ using xNet.Net;
 using System.Collections.Generic;
 using Chilkat;
 using System.IO;
+using System.Net.Sockets;
+using System.Net.Security;
 
-
-//исправить яндекс чек писем
-//для яндекса и мейла фразы ошибок другие поставить, мультиязычные
 
 namespace Mail_Checker
 {
@@ -258,28 +257,25 @@ namespace Mail_Checker
 
             error = CheckErrors.noError;
 
-            xNet.Net.HttpRequest req1 = null, req2=null;
+            xNet.Net.HttpRequest req1 = null;
 
             try
             {
 
 
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
-                CookieDictionary cookies = new CookieDictionary();
 
                 req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
-                req1.Cookies = cookies;
+                req1.KeepAlive = true;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
 
-                xNet.Net.HttpResponse  res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
+                xNet.Net.HttpResponse res1 = req1.Post("https://auth.mail.ru/cgi-bin/auth",
                     "Login=" + loginDomain[0] + "&Domain=" + loginDomain[1] + "&Password=" + mailElements[1] + "&saveauth=1&new_auth_form=1",
                     "application/x-www-form-urlencoded");
 
                 string res1str = res1.ToString();
-
-
 
 
                 if (res1str.Contains("&captcha=1") || res1str.Contains("Ваш ящик заблокирован")
@@ -295,32 +291,26 @@ namespace Mail_Checker
                     return;
                 }
 
-                req2 = new xNet.Net.HttpRequest();
-                req2.Proxy = proxy;
-                req2.Cookies = cookies;
-                req2.ConnectTimeout = timeout * 1000;
-                req2.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
-
 
                 for (int i = 0; i < querys.Length; i++)
                 {
 
-                    xNet.Net.HttpResponse res2 = req2.Get("https://m.mail.ru/search/gosearch?q_from=" + querys[i]);
+                    res1 = req1.Get("https://m.mail.ru/search/gosearch?q_from=" + querys[i]);
 
-                    string res2str = res2.ToString();
+                    res1str = res1.ToString();
 
-                    if (!res2str.Contains("Почта Mail.Ru"))
+                    if (!res1str.Contains("Почта Mail.Ru"))
                     {
                         error = CheckErrors.proxyError;
                         return;
                     }
-                    else if (res2str.Contains("Введите поисковый запрос"))
+                    else if (res1str.Contains("Введите поисковый запрос"))
                     {
                         messages[i] = 0;
                     }
                     else
                     {
-                        MatchCollection col = Regex.Matches(res2str, "[0-9]*\\)</option>");
+                        MatchCollection col = Regex.Matches(res1str, "[0-9]*\\)</option>");
 
                         for (int ii = 0; ii < col.Count; ii++)
                         {
@@ -347,7 +337,6 @@ namespace Mail_Checker
 
 
             if (req1!=null) req1.Dispose();
-            if (req2!=null) req2.Dispose();
 
         }
 
@@ -364,27 +353,26 @@ namespace Mail_Checker
 
             error = CheckErrors.noError;
 
-            xNet.Net.HttpRequest req1=null, req2=null;
+            xNet.Net.HttpRequest req1=null;
 
             try
             {
 
 
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
-                CookieDictionary cookies = new CookieDictionary();
 
                 req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
-                req1.Cookies = cookies;
+                req1.KeepAlive = true;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.AddParam("login", mailElements[0]);
                 req1.AddParam("passwd", mailElements[1]);
-                req1.AddParam("retpath", "https://mail.yandex.ru");
+                req1.AddParam("retpath", "https://mail.yandex.ua");
 
-                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=mail&origin=hostroot_new_l_enter&retpath=https://mail.yandex.ru");
+                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ua/passport?mode=auth&from=passport&retpath=https://mail.yandex.ua&_locale=ru&_ckey=");
 
                 string res1str = res1.ToString();
-
+            
 
                 if (res1str.Contains("account_hacked_phone") || res1str.Contains("b-mail-domik-permament11") ||
                     res1str.Contains("восстановление доступа к логину") || res1str.Contains("Ваш логин заблокирован") ||
@@ -400,39 +388,27 @@ namespace Mail_Checker
                     return;
                 }
 
+                req1.Get("https://mail.yandex.ua/neo2/handlers/handlers3.jsx?_h=folders&_handlers=folders&_locale=ru&_ckey=");
 
                 for (int i = 0; i < querys.Length; i++)
                 {
 
-                    req2 = new xNet.Net.HttpRequest();
-                    req2.Proxy = proxy;
-                    req2.Cookies = cookies;
-                    req2.ConnectTimeout = timeout * 1000;
-                    req2.AddParam("_handlers", "messages");
-                    req2.AddParam("search", "yes");
-                    req2.AddParam("scope", "hdr_from");
-                    req2.AddParam("request", querys[i]);
-                    req2.AddParam("_page", "messages");
-                    req2.AddParam("_service", "mail");
-                    req2.AddParam("_locale", "ru");
-                    req2.AddHeader("X-Requested-With", "XMLHttpRequest");
+                    res1 = req1.Get("https://mail.yandex.ua/neo2/handlers/handlers3.jsx?_h=messages&_handlers=messages&search=yes&_locale=ru&_ckey=&request=" + querys[i]);
 
-                    xNet.Net.HttpResponse res2 = req2.Post("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages");
+                    res1str = res1.ToString();
 
-                    string res2str = res2.ToString();
-
-                    if (!res2str.Contains("handlers"))
+                    if (!res1str.Contains("handlers"))
                     {
                         error = CheckErrors.proxyError;
                         return;
                     }
-                    else if (res2str == "")
+                    else if (res1str == "")
                     {
                         throw new NotImplementedException();
                     }
                     else
                     {
-                        MatchCollection col = Regex.Matches(res2str, "\"type\":\"from\"");
+                        MatchCollection col = Regex.Matches(res1str, "\"type\":\"from\"");
                         messages[i] = col.Count;
 
                     }
@@ -450,14 +426,15 @@ namespace Mail_Checker
 
 
             if (req1 != null) req1.Dispose();
-            if (req2 != null) req2.Dispose();
 
         }
 
 
         private void ImapMailsCheck(string[] mailElements, string serv, string[] proxyElements, out int[] messages, out CheckErrors error)
         {
-            bool success = true;
+
+            string[] loginDomain = mailElements[0].Split(new char[] { '@' });
+
             messages = new int[querys.Length];
             for (int i = 0; i < messages.Length; i++)
             {
@@ -466,6 +443,18 @@ namespace Mail_Checker
 
             error = CheckErrors.noError;
 
+            HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
+
+
+            TcpClient imapStream = proxy.CreateConnection(serv, 993);
+
+            SslStream ssl = new System.Net.Security.SslStream(imapStream.GetStream());
+            ssl.AuthenticateAsClient(serv);
+
+            StreamReader reader = new StreamReader(ssl);
+            StreamWriter writer = new StreamWriter(ssl);
+            
+
 
             Imap imap = new Imap();
             imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
@@ -473,7 +462,8 @@ namespace Mail_Checker
             imap.ReadTimeout = timeout;
             imap.Ssl = true;
             imap.Port = 993;
-            
+
+            xNet.Net.HttpProxyClient p = new HttpProxyClient();
 
 
             imap.HttpProxyHostname = proxyElements[0];

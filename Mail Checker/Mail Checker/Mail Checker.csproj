@@ -86,6 +86,7 @@
     <Compile Include="FormMain.Designer.cs">
       <DependentUpon>FormMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImapClient.cs" />
     <Compile Include="MailBrowser.cs">
       <SubType>Form</SubType>
     </Compile>
