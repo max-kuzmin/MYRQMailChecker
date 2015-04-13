@@ -28,10 +28,6 @@ namespace Mail_Checker
             string serv = Checker.DetectDomain(mailElements[0]);
 
 
-            webBrowser1.Document.Cookie = "";
-
-
-
             if (serv == "imap.mail.ru")
             {
                 webBrowser1.ScriptErrorsSuppressed = true;
@@ -70,6 +66,7 @@ namespace Mail_Checker
 
         private void MailBrowser_FormClosing(object sender, FormClosingEventArgs e)
         {
+            //webBrowser1.Document.Cookie = "";
             e.Cancel = true;
             this.Hide();
         }

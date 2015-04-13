@@ -45,9 +45,11 @@ namespace Mail_Checker
             InitializeComponent();
             b = new MailBrowser();
 
-            UserAgent = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)";
+            UserAgent = "Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
 
             d += SetState;
+
+
 
             //new MailBrowser(new string[] { "roman_dolzhenov@mail.ru", "oleg2510" }).Show();
             //new MailBrowser(new string[] { "zhe-st@yandex.ru", "nastya06" }).Show();
@@ -55,6 +57,22 @@ namespace Mail_Checker
             //new MailBrowser(new string[] { "yura426@qip.ru", "bar123sik" }).Show();
 
             DoubleBufferedControl(listView1, true);
+
+            try
+            {
+                if (File.Exists("setting"))
+                {
+                    string[] setting = File.ReadAllLines("setting");
+                    textBox1threads.Text = setting[0];
+                    textBox2timeout.Text = setting[1];
+                    for (int i = 2; i < setting.Length; i++)
+                    {
+                        textBox1query.AppendText(setting[i]);
+                        if (i < setting.Length - 1) textBox1query.AppendText("\r\n");
+                    }
+                }
+            }
+            catch { }
         }
 
         private void button1mails_Click(object sender, EventArgs e)
@@ -193,7 +211,6 @@ namespace Mail_Checker
                 textBox1threads.Enabled = false;
                 textBox2timeout.Enabled = false;
                 button1mails.Enabled = false;
-                //button2proxys.Enabled = false;
                 textBox1query.Enabled = false;
                 checkBox2doubles.Enabled = false;
             }
@@ -207,7 +224,6 @@ namespace Mail_Checker
                 textBox1threads.Enabled = true;
                 textBox2timeout.Enabled = true;
                 button1mails.Enabled = true;
-                //button2proxys.Enabled = true;
                 textBox1query.Enabled = true;
                 checkBox2doubles.Enabled = true;
 
@@ -219,8 +235,9 @@ namespace Mail_Checker
                 }
                 outMailsLasts.Flush();
                 outMailsLasts.AutoFlush = true;
-                //outMailsLasts.Close();
             }
+
+
         }
 
 
@@ -353,6 +370,18 @@ namespace Mail_Checker
 
         private void Form1main_FormClosed(object sender, FormClosedEventArgs e)
         {
+            try
+            {
+                List<string> settingList = new List<string>();
+                settingList.Add(textBox1threads.Text);
+                settingList.Add(textBox2timeout.Text);
+                settingList.Add(textBox1query.Text);
+
+                string[] setting = settingList.ToArray();
+
+                File.WriteAllLines("setting", setting);
+            }
+            catch { }
             Environment.Exit(0);
         }
 
@@ -360,9 +389,9 @@ namespace Mail_Checker
         {
             button1ProxyChecker.Enabled = false;
 
-            FormProxy form1 = new FormProxy(Convert.ToInt32(textBox1threads.Text));
+            FormProxy form1 = new FormProxy(Convert.ToInt32(textBox1threads.Text), Convert.ToInt32(textBox2timeout.Text));
             form1.Show();
-            form1.FormClosing += (evSender, args) => button1ProxyChecker.Enabled = true; ;
+            form1.FormClosing += (evSender, args) => button1ProxyChecker.Enabled = true; 
             
         }
 
