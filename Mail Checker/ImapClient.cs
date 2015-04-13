@@ -1,46 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Mail_Checker
-{   
-    class Program    
-    {    
-        static void Main(string[] args)    
-        {    
-            /* Connect to gmail using ssl. */    
-            Imap imap = new Imap("imap.gmail.com", 993, true);    
-   
-            /* Authenticate using google email and password */   
-            imap.Authenicate("user", "password");    
-   
-            /* Get a list of folders */   
-            var folders = imap.GetFolders();    
-   
-            /* Select a mailbox*/    
-            imap.SelectFolder("INBOX");    
-   
-            /* Get message using UID */  
-            /* Second parameter is section type. e.g Plain text or HTML */  
-            Console.WriteLine(imap.GetMessage("UID message number", "1"));    
-   
-            /* Get message using index */   
-            Console.WriteLine(imap.GetMessage(1, "1"));    
-   
-            /* Get total message count */   
-            Console.WriteLine(imap.GetMessageCount());    
-   
-            /* Get total unseen message count*/   
-            Console.WriteLine(imap.GetUnseenMessageCount());    
-   
-            Console.ReadKey();    
-        }    
-    }    
-}  
- 
-using System;    
+﻿using System;    
 using System.Collections.Generic;    
 using System.Linq;    
 using System.Text;    
@@ -48,138 +6,113 @@ using System.Text.RegularExpressions;
 using System.Net;    
 using System.Net.Sockets;    
 using System.Net.Security;    
-using System.IO;    
-   
-// Imap.cs   
-class Imap    
+using System.IO;  
+
+namespace Mail_Checker
 {    
-    protected TcpClient _tcpClient;    
-    protected StreamReader _reader;    
-    protected StreamWriter _writer;    
    
+    
+class ImapClient    
+{    
+     TcpClient _tcpClient;    
+     StreamReader _reader;    
+     StreamWriter _writer;
+    SslStream streamSsl;
+    NetworkStream stream;
+    public string LastResponse
+    {
+        get
+        {
+            return lastResponse;
+        }
+    }
+    string lastResponse;
     protected string _selectedFolder = string.Empty;    
-    protected int _prefix = 1;    
+    protected int _prefix = 1;  
+  
    
-    public Imap(string host, int port, bool ssl = false)    
-    {    
-        try    
-        {    
-            _tcpClient = new TcpClient(host, port);    
+    public bool ConnectImap(string host, int port, string proxyHost, int proxyPort, int timeout, bool ssl = true)    
+    {
+
+        xNet.Net.HttpProxyClient prox = new xNet.Net.HttpProxyClient(proxyHost, proxyPort);
+        prox.ConnectTimeout = timeout;
+        prox.ReadWriteTimeout = timeout;
+
+            _tcpClient = prox.CreateConnection(host, port);  
+
    
             if (ssl)    
-            {    
-                var stream = new SslStream(_tcpClient.GetStream());    
-                stream.AuthenticateAsClient(host);    
+            {
+                stream = _tcpClient.GetStream();
+                streamSsl = new SslStream(stream);
+                streamSsl.ReadTimeout = timeout;
+                streamSsl.WriteTimeout = timeout;
+                streamSsl.AuthenticateAsClient(host);    
+                
    
-                _reader = new StreamReader(stream);    
-                _writer = new StreamWriter(stream);    
+                _reader = new StreamReader(streamSsl);    
+                _writer = new StreamWriter(streamSsl);  
             }    
             else    
             {    
                 var stream = _tcpClient.GetStream();    
                 _reader = new StreamReader(stream);    
                 _writer = new StreamWriter(stream);    
-            }    
+            }
+
+            lastResponse = _reader.ReadLine();
+
+            if (lastResponse.Contains("OK")) return true;
+        return false;
+
+    }
+
+
    
-            string greeting = _reader.ReadLine();    
-        }    
-        catch(Exception e){    
-            Console.WriteLine(e.Message);    
-        }    
-    }    
-   
-    public void Authenicate(string user, string pass)    
+    public bool Authenicate(string user, string pass)    
     {    
-        this.SendCommand(string.Format("LOGIN {0} {1}", user, pass));    
-        string response = this.GetResponse();    
+        this.SendCommand(string.Format("LOGIN {0} {1}", user, pass));
+        lastResponse = this.GetResponse();
+
+        if (lastResponse.Contains("OK")) return true;
+        return false;
     }    
    
     public List<string> GetFolders()    
     {    
-        this.SendCommand("LIST \"\" *");    
-        string response = this.GetResponse();    
-   
-        string[] lines = response.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);    
-        List<string> folders = new List<string>();    
-   
-        foreach (string line in lines)    
-        {    
-            MatchCollection m = Regex.Matches(line, "\\\"(.*?)\\\"");    
-   
-            if (m.Count > 1)    
-            {    
-                string folderName = m[m.Count - 1].ToString().Trim(new char[] { '"' });  
-                folders.Add(folderName);    
-            }    
-        }    
+        this.SendCommand("LIST \"\" *");
+        lastResponse = this.GetResponse();
+
+        string[] lines = lastResponse.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);    
+        List<string> folders = new List<string>();
+
+        for (int i = 0; i < lines.Length-1; i++)
+        {
+            string[] folderLine = lines[i].Split(' ');
+            folders.Add(folderLine[folderLine.Length - 1]);
+        }  
    
         return folders;    
     }    
    
-    public void SelectFolder(string folderName)    
+    public bool SelectFolder(string folderName)    
     {    
         this._selectedFolder = folderName;    
-        this.SendCommand("SELECT " + folderName);    
-        string response = this.GetResponse();    
-    }    
-   
-    public int GetMessageCount()    
-    {    
-        this.SendCommand("STATUS " + this._selectedFolder + " (messages)");    
-        string response = this.GetResponse();    
-        Match m = Regex.Match(response, "[0-9]*[0-9]");    
-        return Convert.ToInt32(m.ToString());    
-    }    
-   
-    public int GetUnseenMessageCount()    
-    {    
-        this.SendCommand("STATUS " + this._selectedFolder + " (unseen)");    
-        string response = this.GetResponse();    
-        Match m = Regex.Match(response, "[0-9]*[0-9]");    
-        return Convert.ToInt32(m.ToString());    
-    }    
-   
-    public string GetMessage(string uid, string section)    
-    {    
-        this.SendCommand("UID FETCH " + uid + " BODY[" + section + "]");    
-        return this._GetMessage();    
-    }    
-   
-    public string GetMessage(int index, string section)    
-    {    
-        this.SendCommand("FETCH " + index + " BODY[" + section + "]");    
-        return this._GetMessage();    
-    }    
-   
-    protected string _GetMessage()    
-    {    
-        string line = _reader.ReadLine();    
-        MatchCollection m = Regex.Matches(line, "\\{(.*?)\\}");    
-   
-        if (m.Count > 0)    
-        {    
-            int length = Convert.ToInt32(m[0].ToString().Trim(new char[] { '{', '}' }));    
-   
-            char[] buffer = new char[length];    
-            int read = (length < 128) ? length : 128;    
-            int remaining = length;    
-            int offset = 0;    
-            while (true)    
-            {    
-                read = _reader.Read(buffer, offset, read);    
-                remaining -= read;    
-                offset += read;    
-                read = (remaining >= 128) ? 128 : remaining;    
-   
-                if (remaining==0)    
-                {    
-                    break;    
-                }    
-            }    
-            return new String(buffer);    
-        }    
-        return "";    
-    }    
+        this.SendCommand("SELECT " + folderName);
+        lastResponse = this.GetResponse();
+
+        if (lastResponse.Contains("OK")) return true;
+        return false;
+    }
+
+    public int SearchFrom(string query)
+    {
+        this.SendCommand("SEARCH FROM " + query);
+        lastResponse = this.GetResponse();
+        if (lastResponse.Contains("SEARCH\r\n")) return 0;
+        if (lastResponse.Contains("SEARCH ")) return (lastResponse.Split(' ').Length - 5);
+        return -1;
+    }
    
     protected void SendCommand(string cmd)    
     {    
@@ -193,8 +126,10 @@ class Imap
         string response = string.Empty;    
    
         while (true)    
-        {    
-            string line = _reader.ReadLine();    
+        {
+            string line = _reader.ReadLine();
+            if (line == null) throw new IOException();
+
             string[] tags = line.Split(new char[] { ' ' });    
             response += line + Environment.NewLine;    
             if (tags[0].Substring(0,1) == "A" && tags[1].Trim() == "OK" || tags[1].Trim() == "BAD" || tags[1].Trim() == "NO")    
@@ -205,6 +140,17 @@ class Imap
         }    
    
         return response;    
-    }    
+    }
+
+    public void Dispose()
+    {
+        if (_reader != null) _reader.Dispose();
+        if (_writer != null) _writer.Dispose();
+        if (streamSsl!=null) streamSsl.Close();
+        if (streamSsl != null) streamSsl.Dispose();
+        if (stream != null) stream.Close();
+        if (stream != null) stream.Dispose();
+        if (_tcpClient != null) _tcpClient.Close();
+    }
 } 
 }

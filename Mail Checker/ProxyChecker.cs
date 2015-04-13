@@ -18,13 +18,14 @@ namespace Mail_Checker
         public event EventHandler CheckComplete;
         int errors = 0;
         int goods = 0;
-        int threads = 0, threadsMax=300;
+        int threads = 0, threadsMax=300, timeout = 10000;
         bool stopped = false;
 
-        public ProxyChecker(List<string> prox, int threads)
+        public ProxyChecker(List<string> prox, int threads, int timeout)
         {
             proxys = new ConcurrentQueue<string>(prox);
             this.threadsMax = threads;
+            this.timeout = timeout;
         }
 
 
@@ -73,8 +74,8 @@ namespace Mail_Checker
 
                 using (HttpRequest req = new HttpRequest())
                 {
-                    req.ConnectTimeout = 7000;
-                    req.ReadWriteTimeout = 7000;
+                    req.ConnectTimeout = timeout;
+                    req.ReadWriteTimeout = timeout;
                     try
                     {
                         req.Proxy = ProxyClient.Parse(ProxyType.Http, oneProxy);
@@ -83,16 +84,20 @@ namespace Mail_Checker
                     { 
                         continue; 
                     }
-
+                    
                     HttpResponse res = null;
                     try
                     {
                         res = req.Get("http://www.yandex.ru/m/");
-
                         if (res != null && res.ToString().Contains("Яндекс"))
                         {
-                            goods++;
-                            writer.WriteAsync(oneProxy + "\r\n");
+                            res = req.Get("https://mail.ru/?from=m");
+                            if (res != null && res.ToString().Contains("Mail.Ru"))
+                            {
+                                goods++;
+                                writer.WriteAsync(oneProxy + "\r\n");
+                            }
+                            else errors++;
                         }
                         else errors++;
                     }

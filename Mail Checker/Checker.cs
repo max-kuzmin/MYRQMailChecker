@@ -4,7 +4,6 @@ using System.Threading;
 using System.Text.RegularExpressions;
 using xNet.Net;
 using System.Collections.Generic;
-using Chilkat;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -267,6 +266,7 @@ namespace Mail_Checker
 
                 req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
+                req1.Cookies = new CookieDictionary();
                 req1.KeepAlive = true;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
@@ -363,13 +363,14 @@ namespace Mail_Checker
 
                 req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
+                req1.Cookies = new CookieDictionary();
                 req1.KeepAlive = true;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.AddParam("login", mailElements[0]);
                 req1.AddParam("passwd", mailElements[1]);
-                req1.AddParam("retpath", "https://mail.yandex.ua");
+                req1.AddParam("retpath", "https://mail.yandex.ru");
 
-                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ua/passport?mode=auth&from=passport&retpath=https://mail.yandex.ua&_locale=ru&_ckey=");
+                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=passport&retpath=https://mail.yandex.ru&_locale=ru&_ckey=");
 
                 string res1str = res1.ToString();
             
@@ -388,12 +389,12 @@ namespace Mail_Checker
                     return;
                 }
 
-                req1.Get("https://mail.yandex.ua/neo2/handlers/handlers3.jsx?_h=folders&_handlers=folders&_locale=ru&_ckey=");
+                req1.Get("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=folders&_handlers=folders&_locale=ru&_ckey=");
 
                 for (int i = 0; i < querys.Length; i++)
                 {
 
-                    res1 = req1.Get("https://mail.yandex.ua/neo2/handlers/handlers3.jsx?_h=messages&_handlers=messages&search=yes&_locale=ru&_ckey=&request=" + querys[i]);
+                    res1 = req1.Get("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages&_handlers=messages&search=yes&_locale=ru&_ckey=&request=" + querys[i]);
 
                     res1str = res1.ToString();
 
@@ -433,8 +434,6 @@ namespace Mail_Checker
         private void ImapMailsCheck(string[] mailElements, string serv, string[] proxyElements, out int[] messages, out CheckErrors error)
         {
 
-            string[] loginDomain = mailElements[0].Split(new char[] { '@' });
-
             messages = new int[querys.Length];
             for (int i = 0; i < messages.Length; i++)
             {
@@ -442,103 +441,87 @@ namespace Mail_Checker
             }
 
             error = CheckErrors.noError;
-
-            HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
-
-
-            TcpClient imapStream = proxy.CreateConnection(serv, 993);
-
-            SslStream ssl = new System.Net.Security.SslStream(imapStream.GetStream());
-            ssl.AuthenticateAsClient(serv);
-
-            StreamReader reader = new StreamReader(ssl);
-            StreamWriter writer = new StreamWriter(ssl);
-            
+            bool success = true;
 
 
-            Imap imap = new Imap();
-            imap.UnlockComponent("1QCDO-156DU-TN61L-13B9N-HQO0G");
-            imap.ConnectTimeout = timeout;
-            imap.ReadTimeout = timeout;
-            imap.Ssl = true;
-            imap.Port = 993;
+            ImapClient imap = new ImapClient();
 
-            xNet.Net.HttpProxyClient p = new HttpProxyClient();
-
-
-            imap.HttpProxyHostname = proxyElements[0];
-            imap.HttpProxyPort = Convert.ToInt32(proxyElements[1]);
-
-
-            success = imap.Connect(serv);
-            if (!success) error = CheckErrors.proxyError;
-
-            if (success == true)
+            try
             {
-                success = imap.Login(mailElements[0], mailElements[1]);
+                success = imap.ConnectImap(serv, 993, proxyElements[0], Convert.ToInt32(proxyElements[1]), 10000);
 
-                if (!success)
+                if (success)
                 {
-                    if (imap.LastResponse.Contains("Incorrect username") || imap.LastResponse.Contains("Account blocked")) error = CheckErrors.mailError; 
-                    else error = CheckErrors.proxyError;
-                }
-            }
+                    success = imap.Authenicate(mailElements[0], mailElements[1]);
 
-            if (success == true)
-            {
-                if (querys.Length > 0)
-                {
-                    Mailboxes mboxes = null;
-                    mboxes = imap.ListMailboxes("", "");
-                    if (mboxes == null)
+                    if (!success)
                     {
-                        success = false;
-                        error = CheckErrors.proxyError;
+                        if (imap.LastResponse.Contains("Incorrect username") || imap.LastResponse.Contains("Account blocked") || imap.LastResponse.Contains(" NO ")) error = CheckErrors.mailError;
+                        else error = CheckErrors.proxyError;
                     }
+                }
 
 
-                    if (success)
+                    if (querys.Length > 0)
                     {
-                        for (int i = 0; i < mboxes.Count; i++)
+                        List<string> folders = null;
+
+                        if (success)
                         {
-                            string mboxName = mboxes.GetName(i);
-                            if (mboxName == "DraftBox" || mboxName == "SentBox" || mboxName == "Spam" || mboxName == "Draft" || mboxName == "Sent") continue;
-
-                            success = imap.SelectMailbox(mboxName);
-                            if (!success)
+                            folders = imap.GetFolders();
+                            if (folders.Count == 0)
                             {
+                                success = false;
                                 error = CheckErrors.proxyError;
-                                break;
                             }
+                        }
 
-
-                            for (int k = 0; k < querys.Length; k++)
+                        if (success)
+                        {
+                            for (int i = 0; i < folders.Count; i++)
                             {
-                                MessageSet messageSet = imap.Search("FROM " + querys[k], false);
-                                if (messageSet == null)
+                                string folderName = folders[i];
+                                if (folderName.Contains("DraftBox") || folderName.Contains("SentBox") || folderName.Contains("SpamBox") || folderName.Contains("Spam") || folderName.Contains("Draft") || folderName.Contains("Sent")) continue;
+
+                                if (!imap.SelectFolder(folderName)) continue;
+
+
+                                for (int k = 0; k < querys.Length; k++)
                                 {
-                                    success = false;
-                                    error = CheckErrors.proxyError;
-                                    i = mboxes.Count + 1; //выход из внешнего цикла
-                                    break;
+                                    int messagesCount = imap.SearchFrom(querys[k]);
+                                    if (messagesCount == -1)
+                                    {
+                                        success = false;
+                                        error = CheckErrors.proxyError;
+                                        i = folders.Count + 1; //выход из внешнего цикла
+                                        break;
+                                    }
+
+                                    messages[k] += messagesCount;
                                 }
 
-                                messages[k] += messageSet.Count;
                             }
-
                         }
-                    }
-
 
 
                 }
+            }
+            catch (xNet.Net.ProxyException e)
+            {
 
-
+                error = CheckErrors.proxyError;
+            }
+            catch (IOException e)
+            {
+                error = CheckErrors.proxyError;
+            }
+            catch (NullReferenceException e)
+            {
+                error = CheckErrors.proxyError;
             }
 
 
-            if (imap != null) imap.Disconnect();
-            if (imap!=null) imap.Dispose();
+            imap.Dispose();
 
         }
 

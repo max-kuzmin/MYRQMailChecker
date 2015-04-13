@@ -14,11 +14,12 @@ namespace Mail_Checker
     public partial class FormProxy : Form
     {
         ProxyChecker c = null;
-        int threads = 300;
-        public FormProxy(int threads)
+        int threads = 300, timeout=10000;
+        public FormProxy(int threads, int timeout)
         {
             InitializeComponent();
             this.threads = threads;
+            this.timeout = timeout*1000;
             deleg += UpdGUIFunc;
         }
 
@@ -32,7 +33,7 @@ namespace Mail_Checker
                 List<string> proxys = new List<string>(Form1main.DoubleRemover(File.ReadAllLines(dialog.FileName)));
 
 
-                c = new ProxyChecker(proxys, threads);
+                c = new ProxyChecker(proxys, threads,timeout);
                 c.CheckComplete += C_CheckComplete;
                 c.CheckAsync();
 

@@ -295,7 +295,6 @@
             this.textBox1query.Name = "textBox1query";
             this.textBox1query.Size = new System.Drawing.Size(149, 58);
             this.textBox1query.TabIndex = 20;
-            this.textBox1query.Text = "No-reply@ulmart.ru\r\ninfo@sclub.ru";
             // 
             // contextMenuStrip1
             // 
@@ -304,19 +303,19 @@
             this.toolStripMenuItem1login,
             this.toolStripMenuItem2pass});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(218, 52);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(224, 56);
             // 
             // toolStripMenuItem1login
             // 
             this.toolStripMenuItem1login.Name = "toolStripMenuItem1login";
-            this.toolStripMenuItem1login.Size = new System.Drawing.Size(217, 24);
+            this.toolStripMenuItem1login.Size = new System.Drawing.Size(223, 26);
             this.toolStripMenuItem1login.Text = "Копировать логин";
             this.toolStripMenuItem1login.Click += new System.EventHandler(this.toolStripMenuItem1login_Click);
             // 
             // toolStripMenuItem2pass
             // 
             this.toolStripMenuItem2pass.Name = "toolStripMenuItem2pass";
-            this.toolStripMenuItem2pass.Size = new System.Drawing.Size(217, 24);
+            this.toolStripMenuItem2pass.Size = new System.Drawing.Size(223, 26);
             this.toolStripMenuItem2pass.Text = "Копировать пароль";
             this.toolStripMenuItem2pass.Click += new System.EventHandler(this.toolStripMenuItem2pass_Click);
             // 
@@ -398,6 +397,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.LavenderBlush;
             this.ClientSize = new System.Drawing.Size(582, 512);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.panel1);
@@ -408,7 +408,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Worst MYRQ Checker r16";
+            this.Text = "Red MYRQ Checker r17";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1main_FormClosed);
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
